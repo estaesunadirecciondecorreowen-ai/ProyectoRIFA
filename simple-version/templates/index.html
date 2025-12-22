@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.nombre }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- COPOS DE NIEVE -->
+    <div class="snowflakes" aria-hidden="true">
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="navbar-brand">🎫 {{ config.nombre }}</a>
+            <div class="navbar-menu">
+                <a href="/login" class="btn btn-outline">Iniciar Sesión</a>
+                <a href="/register" class="btn btn-primary">Crear Cuenta y Comprar</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <h1>{{ config.nombre }}</h1>
+            <p>{{ config.causa }}</p>
+            <p style="font-size: 2rem; margin: 1rem 0;">🏆 Premio: {{ config.premio }}</p>
+            <a href="{{ config.link_noticia }}" target="_blank" class="btn btn-outline" style="margin-top: 1rem; color: white;">
+                📰 Ver noticia del incendio
+            </a>
+            
+            <!-- COUNTDOWN -->
+            <div class="card" style="max-width: 600px; margin: 2rem auto;">
+                <h2 class="text-center mb-3" style="color: #000000;">⏰ Tiempo restante para el sorteo</h2>
+                <div class="countdown" id="countdown">
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="days">--</span>
+                        <span class="countdown-label">Días</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="hours">--</span>
+                        <span class="countdown-label">Horas</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="minutes">--</span>
+                        <span class="countdown-label">Minutos</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="seconds">--</span>
+                        <span class="countdown-label">Segundos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BOLETOS -->
+    <section style="padding: 2rem 0;">
+        <div class="container">
+            <div class="card">
+                <h2 class="card-header text-center">Boletos Disponibles</h2>
+                
+                <!-- LEYENDA -->
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #10b981;"></div>
+                        <span>Disponible</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #d1d5db;"></div>
+                        <span>Vendido</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f59e0b;"></div>
+                        <span>Reservado</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #8b5cf6;"></div>
+                        <span>Venta Física</span>
+                    </div>
+                </div>
+
+                <!-- LOADING -->
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p class="mt-2">Cargando boletos...</p>
+                </div>
+
+                <!-- GRID DE BOLETOS -->
+                <div id="tickets-container" class="hidden">
+                    <div class="text-center mb-3">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--color-gray-700); margin-bottom: 0.5rem;">
+                            Panel de Boletos (25 x 20)
+                        </h3>
+                        <p style="font-size: 0.875rem; color: var(--color-gray-600);">Total: 500 boletos</p>
+                    </div>
+                    <div id="tickets-grid" class="tickets-grid"></div>
+                </div>
+
+                <!-- CTA -->
+                <div class="text-center mt-4">
+                    <a href="/register" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 2rem;">
+                        🎫 ¡Compra tus boletos ahora!
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CÓMO PARTICIPAR -->
+    <section style="padding: 2rem 0;">
+        <div class="container">
+            <div class="card">
+                <h2 class="card-header text-center">¿Cómo Participar?</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">1️⃣</div>
+                        <h3 style="margin-bottom: 0.5rem;">Regístrate</h3>
+                        <p>Crea tu cuenta gratis en segundos</p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">2️⃣</div>
+                        <h3 style="margin-bottom: 0.5rem;">Selecciona Boletos</h3>
+                        <p>Elige tus números de la suerte</p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">3️⃣</div>
+                        <h3 style="margin-bottom: 0.5rem;">Realiza el Pago</h3>
+                        <p>Transfiere y sube tu comprobante</p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">4️⃣</div>
+                        <h3 style="margin-bottom: 0.5rem;">¡Listo!</h3>
+                        <p>Espera el sorteo y cruza los dedos 🤞</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INFORMACIÓN -->
+    <section style="padding: 2rem 0 4rem;">
+        <div class="container">
+            <div class="card">
+                <h2 class="card-header text-center">Información Importante</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                    <div>
+                        <h3 style="margin-bottom: 0.5rem;">💰 Precio por Boleto</h3>
+                        <p style="font-size: 2rem; font-weight: 700; color: var(--color-primary);">${{ config.precio_boleto }}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 style="margin-bottom: 0.5rem;">🎫 Total de Boletos</h3>
+                        <p style="font-size: 2rem; font-weight: 700; color: var(--color-primary);">{{ config.total_boletos }}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 style="margin-bottom: 0.5rem;">📅 Fecha del Sorteo</h3>
+                        <p style="font-size: 1.25rem; font-weight: 700; color: var(--color-primary);">{{ config.fecha_sorteo }}</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4">
+                    <strong>ℹ️ Nota:</strong> Todos los fondos recaudados serán destinados a {{ config.causa }}. 
+                    El sorteo se realizará de forma transparente y será transmitido en vivo.
+                    <br><br>
+                    <strong>📰 Ver noticia del incendio:</strong> 
+                    <a href="{{ config.link_noticia }}" target="_blank" style="color: white; font-weight: 600; text-decoration: underline;">
+                        Haz clic aquí para más información
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Countdown
+        const targetDate = new Date('{{ config.fecha_sorteo }}').getTime();
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+            
+            if (distance < 0) {
+                document.getElementById('countdown').innerHTML = '<p style="font-size: 1.5rem;">¡El sorteo ha finalizado!</p>';
+                return;
+            }
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+        
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+        
+        // Cargar boletos
+        async function cargarBoletos() {
+            try {
+                const response = await fetch('/api/boletos');
+                const boletos = await response.json();
+                
+                const grid = document.getElementById('tickets-grid');
+                grid.innerHTML = '';
+                
+                boletos.forEach(boleto => {
+                    const div = document.createElement('div');
+                    div.className = `ticket ${boleto.estado}`;
+                    div.textContent = boleto.numero;
+                    grid.appendChild(div);
+                });
+                
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('tickets-container').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error al cargar boletos:', error);
+                document.getElementById('loading').innerHTML = '<p class="alert alert-error">Error al cargar boletos</p>';
+            }
+        }
+        
+        cargarBoletos();
+        
+        // Actualizar cada 30 segundos
+        setInterval(cargarBoletos, 30000);
+    </script>
+</body>
+</html>
+

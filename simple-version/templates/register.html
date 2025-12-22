@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Rifa Altruista</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- COPOS DE NIEVE -->
+    <div class="snowflakes" aria-hidden="true">
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>🎫 Crear Cuenta</h1>
+            
+            <div id="alert" class="hidden"></div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label class="form-label" for="nombre">Nombre Completo</label>
+                    <input type="text" id="nombre" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" class="form-input" required autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="telefono">Teléfono *</label>
+                    <input type="tel" id="telefono" class="form-input" placeholder="Ej: 5551234567" required>
+                    <small style="color: var(--color-gray-600);">10 dígitos sin espacios</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Contraseña</label>
+                    <input type="password" id="password" class="form-input" required minlength="6" autocomplete="new-password">
+                    <small style="color: var(--color-gray-600);">Mínimo 6 caracteres</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password_confirm">Confirmar Contraseña</label>
+                    <input type="password" id="password_confirm" class="form-input" required minlength="6" autocomplete="new-password">
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;" id="submitBtn">
+                    Crear Cuenta
+                </button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <p>¿Ya tienes cuenta? <a href="/login" style="color: var(--color-primary); font-weight: 600;">Inicia sesión y ve a tu dashboard</a></p>
+                <p style="margin-top: 0.5rem;"><a href="/" style="color: var(--color-gray-600);">← Volver al inicio</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('registerForm');
+        const alertDiv = document.getElementById('alert');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        function showAlert(message, type = 'error') {
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertDiv.classList.remove('hidden');
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nombre = document.getElementById('nombre').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            const password = document.getElementById('password').value;
+            const password_confirm = document.getElementById('password_confirm').value;
+            
+            // Validar teléfono
+            if (!telefono) {
+                showAlert('El teléfono es obligatorio');
+                return;
+            }
+            
+            if (telefono.length < 10) {
+                showAlert('El teléfono debe tener al menos 10 dígitos');
+                return;
+            }
+            
+            // Validar contraseñas
+            if (password !== password_confirm) {
+                showAlert('Las contraseñas no coinciden');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showAlert('La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creando cuenta...';
+            alertDiv.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nombre, email, telefono, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('¡Cuenta creada exitosamente! Redirigiendo a tu dashboard...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else {
+                    showAlert(data.error || 'Error al crear la cuenta');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Crear Cuenta';
+                }
+            } catch (error) {
+                showAlert('Error de conexión. Intenta de nuevo.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Crear Cuenta';
+            }
+        });
+    </script>
+</body>
+</html>
+

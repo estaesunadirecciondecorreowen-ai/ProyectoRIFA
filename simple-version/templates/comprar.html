@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprar Boletos - Rifa Altruista</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .copy-field {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+            flex-wrap: wrap;
+        }
+        .btn-copy {
+            background: var(--color-primary);
+            border: none;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        .btn-copy:hover {
+            background: var(--color-primary-dark);
+            transform: scale(1.05);
+        }
+        .btn-copy.copied {
+            background: #10b981;
+        }
+        
+        /* Formulario estético con labels a la izquierda */
+        .form-centered {
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        
+        .form-centered .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+        
+        .form-centered .form-label {
+            flex: 0 0 180px;
+            font-weight: 600;
+            color: var(--color-gray-700);
+            font-size: 0.9rem;
+            text-align: left;
+            margin: 0;
+        }
+        
+        .form-centered .form-input {
+            flex: 1;
+            padding: 0.65rem 1rem;
+            border: 2px solid var(--color-gray-200);
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: var(--color-gray-50);
+            text-align: center;
+        }
+        
+        .form-centered .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(139, 21, 56, 0.1);
+        }
+        
+        .form-centered .form-input::placeholder {
+            color: var(--color-gray-400);
+            font-size: 0.85rem;
+        }
+        
+        .form-centered .form-input[type="file"] {
+            text-align: left;
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .form-centered button[type="submit"] {
+            width: 100%;
+            margin: 1.5rem 0 0;
+            padding: 0.85rem 2rem;
+            font-size: 1rem;
+            border-radius: 0.75rem;
+        }
+        
+        /* Responsive para móviles */
+        @media (max-width: 576px) {
+            .form-centered .form-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+            
+            .form-centered .form-label {
+                flex: none;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- COPOS DE NIEVE -->
+    <div class="snowflakes" aria-hidden="true">
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="navbar-brand">🎫 Rifa Altruista</a>
+            <div class="navbar-menu">
+                <a href="/dashboard" class="btn btn-outline">Mi Dashboard</a>
+                <button onclick="logout()" class="btn btn-secondary">Cerrar Sesión</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO -->
+    <div style="padding: 2rem 0; min-height: calc(100vh - 80px);">
+        <div class="container">
+            <div class="card">
+                <h1 class="card-header">🎫 Comprar Boletos</h1>
+                
+                <div id="alert" class="hidden"></div>
+                
+                <!-- PASO 1: SELECCIÓN -->
+                <div id="step1">
+                    <div class="alert alert-info mb-3">
+                        <strong>💚 Causa:</strong> {{ config.causa }}<br>
+                        <strong>🏆 Premio:</strong> {{ config.premio }}<br>
+                        <a href="{{ config.link_noticia }}" target="_blank" style="color: var(--color-primary); font-weight: 600; text-decoration: underline;">
+                            📰 Ver noticia del incendio
+                        </a>
+                        <br><br>
+                        <strong>ℹ️ Instrucciones:</strong><br>
+                        1. Selecciona los boletos que deseas (clic en los verdes)<br>
+                        2. Los boletos se reservarán por 20 minutos<br>
+                        3. Realiza la transferencia y sube tu comprobante
+                    </div>
+
+                    <!-- LEYENDA -->
+                    <div class="legend mb-3">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #10b981;"></div>
+                            <span>Disponible</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #4f46e5;"></div>
+                            <span>Seleccionado</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #d1d5db;"></div>
+                            <span>No disponible</span>
+                        </div>
+                    </div>
+
+                    <!-- RESUMEN DE SELECCIÓN -->
+                    <div id="selection-summary" class="card hidden" style="background: var(--color-gray-50); border: 2px solid var(--color-primary);">
+                        <div class="flex justify-between align-center">
+                            <div>
+                                <strong>Boletos seleccionados: <span id="count">0</span></strong><br>
+                                <span style="font-size: 1.5rem; color: var(--color-primary); font-weight: 700;">
+                                    Total: $<span id="total">0</span>
+                                </span>
+                            </div>
+                            <button onclick="reservarBoletos()" class="btn btn-primary" id="reserveBtn">
+                                Reservar y Continuar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- LOADING -->
+                    <div id="loading" class="loading">
+                        <div class="spinner"></div>
+                        <p class="mt-2">Cargando boletos...</p>
+                    </div>
+
+                    <!-- GRID DE BOLETOS -->
+                    <div id="tickets-container" class="hidden">
+                        <div class="text-center mb-3">
+                            <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--color-gray-700); margin-bottom: 0.5rem;">
+                                Panel de Boletos (25 x 20)
+                            </h3>
+                            <p style="font-size: 0.875rem; color: var(--color-gray-600);">Total: 500 boletos</p>
+                        </div>
+                        <div id="tickets-grid" class="tickets-grid"></div>
+                    </div>
+                </div>
+
+                <!-- PASO 2: PAGO -->
+                <div id="step2" class="hidden">
+                    <div class="alert alert-success mb-3">
+                        <strong>✅ Boletos reservados exitosamente</strong><br>
+                        Tienes <strong id="tiempo-restante">20:00</strong> minutos para completar el pago.
+                    </div>
+
+                    <div class="alert alert-info mb-3">
+                        <strong>💰 Información de Pago</strong><br><br>
+                        <strong>Banco:</strong> BBVA Bancomer<br>
+                        <div class="copy-field">
+                            <strong>Cuenta:</strong> 
+                            <span id="cuenta-valor">1517353084</span>
+                            <button type="button" class="btn-copy" onclick="copiarAlPortapapeles('cuenta-valor', this)" title="Copiar cuenta">
+                                📋
+                            </button>
+                        </div>
+                        <div class="copy-field">
+                            <strong>CLABE:</strong> 
+                            <span id="clabe-valor">012180015173530847</span>
+                            <button type="button" class="btn-copy" onclick="copiarAlPortapapeles('clabe-valor', this)" title="Copiar CLABE">
+                                📋
+                            </button>
+                        </div>
+                        <div class="copy-field">
+                            <strong>Titular:</strong> 
+                            <span id="titular-valor">Alfaro Alvarez Oscar Humberto</span>
+                            <button type="button" class="btn-copy" onclick="copiarAlPortapapeles('titular-valor', this)" title="Copiar titular">
+                                📋
+                            </button>
+                        </div>
+                        <strong>Concepto:</strong> Pon tu N° de boleto y tu Nombre<br><br>
+                        <strong style="font-size: 1.25rem; color: var(--color-primary);">
+                            Monto a transferir: $<span id="monto-pagar">0</span>
+                        </strong>
+                    </div>
+
+                    <form id="paymentForm" enctype="multipart/form-data" class="form-centered">
+                        <div class="form-group">
+                            <label class="form-label" for="nombre-comprador">👤 Nombre del Comprador</label>
+                            <input type="text" id="nombre-comprador" name="nombre_comprador" class="form-input" required 
+                                   placeholder="Nombre completo">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="telefono-comprador">📱 Teléfono del Comprador</label>
+                            <input type="tel" id="telefono-comprador" name="telefono_comprador" class="form-input" required 
+                                   placeholder="Ej: 5551234567" minlength="10">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="nombre-vendedor">🤝 Nombre del Vendedor</label>
+                            <input type="text" id="nombre-vendedor" name="nombre_vendedor" class="form-input" required 
+                                   placeholder="¿Quién te vendió?">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="folio">🔢 Folio de Transferencia</label>
+                            <input type="text" id="folio" name="folio" class="form-input" required 
+                                   placeholder="Ej: 123456789">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="monto">💵 Monto Transferido</label>
+                            <input type="number" id="monto" name="monto" class="form-input" required 
+                                   step="0.01" placeholder="$0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fecha">📅 Fecha de Transferencia</label>
+                            <input type="date" id="fecha" name="fecha" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="comprobante">📎 Comprobante (JPG, PNG, PDF)</label>
+                            <input type="file" id="comprobante" name="comprobante" class="form-input" required 
+                                   accept="image/*,.pdf">
+                        </div>
+
+                        <button type="submit" class="btn btn-success" id="paymentBtn">
+                            ✅ Enviar Comprobante
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedTickets = [];
+        let reservedExpiry = null;
+        const PRECIO_BOLETO = {{ config.precio_boleto }};
+
+        function copiarAlPortapapeles(elementId, btn) {
+            const texto = document.getElementById(elementId).textContent.trim();
+            navigator.clipboard.writeText(texto).then(() => {
+                // Cambiar el ícono temporalmente para indicar éxito
+                const originalText = btn.textContent;
+                btn.textContent = '✅';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 1500);
+            }).catch(err => {
+                // Fallback para navegadores más antiguos
+                const textArea = document.createElement('textarea');
+                textArea.value = texto;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                btn.textContent = '✅';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '📋';
+                    btn.classList.remove('copied');
+                }, 1500);
+            });
+        }
+
+        function showAlert(message, type = 'error') {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = message;
+            alertDiv.classList.remove('hidden');
+            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/';
+        }
+
+        async function cargarBoletos() {
+            try {
+                const response = await fetch('/api/boletos');
+                const boletos = await response.json();
+                
+                const grid = document.getElementById('tickets-grid');
+                grid.innerHTML = '';
+                
+                // Limpiar selección al recargar boletos
+                selectedTickets = [];
+                updateSelection();
+                
+                boletos.forEach(boleto => {
+                    const div = document.createElement('div');
+                    div.className = `ticket ${boleto.estado}`;
+                    div.textContent = boleto.numero;
+                    
+                    if (boleto.estado === 'disponible') {
+                        div.addEventListener('click', () => toggleTicket(boleto.numero));
+                    }
+                    
+                    grid.appendChild(div);
+                });
+                
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('tickets-container').classList.remove('hidden');
+            } catch (error) {
+                showAlert('Error al cargar boletos. <button onclick="cargarBoletos()" class="btn btn-primary">Reintentar</button>');
+            }
+        }
+
+        function toggleTicket(numero) {
+            const index = selectedTickets.indexOf(numero);
+            
+            if (index > -1) {
+                selectedTickets.splice(index, 1);
+            } else {
+                selectedTickets.push(numero);
+            }
+            
+            updateSelection();
+        }
+
+        function updateSelection() {
+            // Actualizar visualización
+            document.querySelectorAll('.ticket.disponible').forEach(ticket => {
+                const numero = parseInt(ticket.textContent);
+                if (selectedTickets.includes(numero)) {
+                    ticket.classList.add('selected');
+                } else {
+                    ticket.classList.remove('selected');
+                }
+            });
+            
+            // Actualizar resumen
+            const count = selectedTickets.length;
+            const total = count * PRECIO_BOLETO;
+            
+            document.getElementById('count').textContent = count;
+            document.getElementById('total').textContent = total;
+            
+            if (count > 0) {
+                document.getElementById('selection-summary').classList.remove('hidden');
+            } else {
+                document.getElementById('selection-summary').classList.add('hidden');
+            }
+        }
+
+        async function reservarBoletos() {
+            if (selectedTickets.length === 0) {
+                showAlert('Selecciona al menos un boleto', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('reserveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Reservando...';
+
+            try {
+                const response = await fetch('/api/boletos/reservar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numeros: selectedTickets })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Mostrar paso 2
+                    document.getElementById('step1').classList.add('hidden');
+                    document.getElementById('step2').classList.remove('hidden');
+                    document.getElementById('monto-pagar').textContent = selectedTickets.length * PRECIO_BOLETO;
+                    document.getElementById('monto').value = selectedTickets.length * PRECIO_BOLETO;
+                    document.getElementById('fecha').valueAsDate = new Date();
+                    
+                    // Iniciar countdown
+                    reservedExpiry = new Date(data.expira);
+                    startCountdown();
+                    
+                    showAlert('Boletos reservados exitosamente. Completa el pago en los próximos 20 minutos.', 'success');
+                } else {
+                    showAlert(data.error || 'Error al reservar boletos');
+                    btn.disabled = false;
+                    btn.textContent = 'Reservar y Continuar';
+                }
+            } catch (error) {
+                showAlert('Error de conexión. Intenta de nuevo.');
+                btn.disabled = false;
+                btn.textContent = 'Reservar y Continuar';
+            }
+        }
+
+        function startCountdown() {
+            const updateTimer = () => {
+                const now = new Date();
+                const distance = reservedExpiry - now;
+                
+                if (distance < 0) {
+                    document.getElementById('tiempo-restante').textContent = '00:00';
+                    showAlert('⏰ El tiempo de reserva ha expirado. Los boletos han sido liberados.', 'warning');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                    return;
+                }
+                
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('tiempo-restante').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            };
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('paymentBtn');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+            
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('/api/boletos/comprar', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert(`✅ ${data.message}<br><br><strong>Código de compra: ${data.codigo}</strong><br>Boletos: ${data.boletos.join(', ')}`, 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 3000);
+                } else {
+                    showAlert(data.error || 'Error al procesar la compra');
+                    btn.disabled = false;
+                    btn.textContent = 'Enviar Comprobante';
+                }
+            } catch (error) {
+                showAlert('Error de conexión. Intenta de nuevo.');
+                btn.disabled = false;
+                btn.textContent = 'Enviar Comprobante';
+            }
+        });
+
+        cargarBoletos();
+    </script>
+</body>
+</html>
+

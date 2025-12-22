@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Dashboard - Rifa Altruista</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- COPOS DE NIEVE -->
+    <div class="snowflakes" aria-hidden="true">
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="navbar-brand">🎫 Rifa Altruista</a>
+            <div class="navbar-menu">
+                <span style="margin-right: 1rem;">Hola, <strong>{{ user.nombre }}</strong></span>
+                <a href="/comprar" class="btn btn-primary">Comprar Boletos</a>
+                <button onclick="logout()" class="btn btn-secondary">Cerrar Sesión</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO -->
+    <div style="padding: 2rem 0; min-height: calc(100vh - 80px);">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Bienvenido</h1>
+                <p style="color: var(--color-gray-600);">Aquí puedes ver todas tus compras y el estado de tus boletos</p>
+                
+                <div class="alert alert-info mt-3">
+                    <strong>💚 Apoyas:</strong> Familia damnificada por incendio<br>
+                    <strong>🏆 Premio del sorteo:</strong> PlayStation <br>
+                    <a href="https://x.com/telediario/status/1985533370336702812?s=12" target="_blank" style="color: var(--color-primary); font-weight: 600; text-decoration: underline;">
+                        📰 Ver noticia del incendio
+                    </a>
+                </div>
+            </div>
+
+            <!-- COMPRAS -->
+            <div class="card">
+                <div class="flex justify-between align-center mb-3">
+                    <h2 class="card-header" style="margin-bottom: 0;">Mis Compras</h2>
+                    <a href="/comprar" class="btn btn-primary">+ Comprar Más</a>
+                </div>
+                
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p class="mt-2">Cargando tus compras...</p>
+                </div>
+                
+                <div id="compras-container" class="hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/';
+            } catch (error) {
+                alert('Error al cerrar sesión');
+            }
+        }
+
+        function getBadgeClass(estado) {
+            const badges = {
+                'aprobada': 'badge-success',
+                'pendiente': 'badge-warning',
+                'rechazada': 'badge-danger'
+            };
+            return badges[estado] || 'badge-info';
+        }
+
+        function getEstadoTexto(estado) {
+            const textos = {
+                'aprobada': 'Aprobada ✓',
+                'pendiente': 'En Revisión',
+                'rechazada': 'Rechazada'
+            };
+            return textos[estado] || estado;
+        }
+
+        async function cargarCompras() {
+            try {
+                const response = await fetch('/api/usuario/compras');
+                const compras = await response.json();
+                
+                const container = document.getElementById('compras-container');
+                
+                if (compras.length === 0) {
+                    container.innerHTML = `
+                        <div class="alert alert-info">
+                            <strong>ℹ️ No tienes compras aún</strong><br>
+                            ¡Compra tus primeros boletos y participa en la rifa!
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = compras.map(compra => `
+                        <div class="card" style="margin-bottom: 1rem; border-left: 4px solid ${
+                            compra.estado === 'aprobada' ? 'var(--color-success)' : 
+                            compra.estado === 'rechazada' ? 'var(--color-danger)' : 
+                            'var(--color-warning)'
+                        };">
+                            <div class="flex justify-between align-center mb-2">
+                                <h3 style="margin: 0;">Compra ${compra.codigo}</h3>
+                                <span class="badge ${getBadgeClass(compra.estado)}">${getEstadoTexto(compra.estado)}</span>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                                <div>
+                                    <strong>Total:</strong> $${compra.total}
+                                </div>
+                                <div>
+                                    <strong>Fecha:</strong> ${new Date(compra.fecha).toLocaleDateString('es-MX')}
+                                </div>
+                                <div>
+                                    <strong>Método:</strong> ${compra.metodo === 'transferencia' ? 'Transferencia' : 'Físico'}
+                                </div>
+                                ${compra.comprador ? `
+                                <div>
+                                    <strong>Comprador:</strong> ${compra.comprador}
+                                </div>
+                                ` : ''}
+                                ${compra.telefono ? `
+                                <div>
+                                    <strong>Teléfono:</strong> ${compra.telefono}
+                                </div>
+                                ` : ''}
+                                ${compra.vendedor ? `
+                                <div>
+                                    <strong>Vendedor:</strong> ${compra.vendedor}
+                                </div>
+                                ` : ''}
+                            </div>
+
+                            ${compra.folio ? `
+                                <div style="margin: 1rem 0;">
+                                    <strong>Folio de Transferencia:</strong> ${compra.folio}
+                                </div>
+                            ` : ''}
+
+                            ${compra.notas_admin ? `
+                                <div class="alert ${compra.estado === 'rechazada' ? 'alert-error' : 'alert-info'}" style="margin: 1rem 0;">
+                                    <strong>${compra.estado === 'rechazada' ? '❌ Motivo del rechazo:' : 'ℹ️ Nota del administrador:'}</strong><br>
+                                    ${compra.notas_admin}
+                                </div>
+                            ` : ''}
+
+                            <div style="margin-top: 1rem;">
+                                <strong>Boletos (${compra.boletos.length}):</strong>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                                    ${compra.boletos.map(num => `
+                                        <span class="badge ${compra.estado === 'aprobada' ? 'badge-success' : 'badge-warning'}">
+                                            #${num}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            ${compra.estado === 'aprobada' && compra.tiene_pdf ? `
+                                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid var(--color-gray-200);">
+                                    <a href="/api/descargar-boletos" class="btn btn-primary" download style="text-decoration: none;">
+                                        📥 Descargar mis Boletos en PDF
+                                    </a>
+                                </div>
+                            ` : compra.estado === 'aprobada' && !compra.tiene_pdf ? `
+                                <div style="margin-top: 1.5rem;">
+                                    <div class="alert alert-info" style="margin: 0;">
+                                        <strong>ℹ️ Generando PDFs</strong><br>
+                                        Los PDFs de tus boletos están siendo generados. Vuelve pronto para descargarlos.
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                }
+                
+                document.getElementById('loading').classList.add('hidden');
+                container.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="alert alert-error">
+                        Error al cargar las compras. <button onclick="cargarCompras()" class="btn btn-primary" style="margin-left: 1rem;">Reintentar</button>
+                    </div>
+                `;
+            }
+        }
+
+        cargarCompras();
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,145 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║                                                                          ║
+║              ✅ SISTEMA ACTUALIZADO - INICIO RÁPIDO                      ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+🎉 NUEVAS FUNCIONALIDADES:
+
+1. 📄 Sistema de generación y descarga de PDFs
+2. 📱 Teléfono obligatorio en registro y compra
+
+═══════════════════════════════════════════════════════════════════════════
+
+🚀 INICIO RÁPIDO (3 PASOS):
+
+1️⃣  Instalar dependencias:
+    cd simple-version
+    pip install -r requirements.txt
+
+2️⃣  Iniciar servidor:
+    python app.py
+
+3️⃣  Acceder:
+    Admin: http://localhost:5000/admin
+    (admin@rifa.com / admin123)
+
+═══════════════════════════════════════════════════════════════════════════
+
+📄 GENERAR PDFs (ADMIN):
+
+1. Acceder a panel admin
+2. Ir a pestaña "📄 Generar PDFs"
+3. Configurar:
+   - Plantilla: Gris o Negro
+   - Agrupación: 4 por hoja o Individual
+4. Ingresar números: 1, 5, 10, 25
+5. Clic en "Generar PDFs"
+
+O bien: Clic en "📦 Generar Todos los Vendidos"
+
+═══════════════════════════════════════════════════════════════════════════
+
+👤 DESCARGAR PDFs (USUARIOS):
+
+1. Usuario compra boletos (incluye teléfono obligatorio)
+2. Admin aprueba transferencia
+3. Admin genera los PDFs
+4. Usuario ve en dashboard: "📥 Descargar mis Boletos en PDF"
+5. Usuario descarga ZIP con sus boletos
+
+═══════════════════════════════════════════════════════════════════════════
+
+📱 TELÉFONO OBLIGATORIO:
+
+✓ Registro requiere teléfono (mínimo 10 dígitos)
+✓ Compra requiere teléfono del comprador (mínimo 10 dígitos)
+✓ Validaciones en frontend y backend
+✓ Se muestra en dashboard y panel admin
+
+═══════════════════════════════════════════════════════════════════════════
+
+📂 ARCHIVOS IMPORTANTES:
+
+Documentación PDFs:
+- FUNCIONALIDAD_PDFS.md (completa)
+- LEEME_PDFS.txt (resumen)
+
+Documentación Teléfono:
+- TELEFONO_OBLIGATORIO.md (completa)
+- RESUMEN_TELEFONO.txt (resumen)
+
+Resumen General:
+- RESUMEN_COMPLETO_SESION.md (todo)
+- INICIO_RAPIDO.txt (este archivo)
+
+═══════════════════════════════════════════════════════════════════════════
+
+✅ VERIFICACIÓN RÁPIDA:
+
+□ Servidor inicia sin errores
+□ Panel admin muestra pestaña "📄 Generar PDFs"
+□ Registro requiere teléfono
+□ Compra requiere teléfono del comprador
+□ Se pueden generar PDFs
+□ Usuarios pueden descargar PDFs
+
+═══════════════════════════════════════════════════════════════════════════
+
+🗄️ BASE DE DATOS:
+
+Nuevas columnas (se crean automáticamente):
+- boletos: pdf_generado, pdf_filename
+- compras: telefono_comprador
+
+═══════════════════════════════════════════════════════════════════════════
+
+🔧 DEPENDENCIAS NUEVAS:
+
+requests==2.31.0 (para comunicación con API de tickets)
+
+═══════════════════════════════════════════════════════════════════════════
+
+🎯 ENDPOINTS NUEVOS:
+
+POST /api/admin/generar-pdfs (generar PDFs - solo admin)
+GET /api/descargar-boletos (descargar boletos del usuario)
+
+═══════════════════════════════════════════════════════════════════════════
+
+🌐 API EXTERNA:
+
+https://tickets-fqbvdgbeewbedkfs.centralus-01.azurewebsites.net
+
+Ya configurada y lista para usar.
+
+═══════════════════════════════════════════════════════════════════════════
+
+⚡ COMANDOS ÚTILES:
+
+# Iniciar servidor
+python app.py
+
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Acceder admin
+http://localhost:5000/admin
+
+═══════════════════════════════════════════════════════════════════════════
+
+📊 RESUMEN:
+
+✅ 2 funcionalidades implementadas
+✅ 9 archivos modificados
+✅ 8 archivos de documentación creados
+✅ 3 columnas nuevas en BD
+✅ 2 endpoints nuevos
+✅ 100% funcional y listo para usar
+
+═══════════════════════════════════════════════════════════════════════════
+
+Fecha: 22/12/2025
+Estado: ✅ COMPLETADO
+¡Todo listo para usar!
+

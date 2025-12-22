@@ -1,0 +1,216 @@
+================================================================================
+  🎫 SISTEMA DE GENERACIÓN Y DESCARGA DE PDFs - INSTRUCCIONES RÁPIDAS
+================================================================================
+
+✅ IMPLEMENTACIÓN COMPLETADA
+
+Se ha integrado la API de generación de boletos en PDF.
+Los administradores pueden generar PDFs y los usuarios pueden descargarlos.
+
+================================================================================
+📦 PASO 1: INSTALAR DEPENDENCIAS
+================================================================================
+
+Abre una terminal en la carpeta "simple-version" y ejecuta:
+
+    pip install -r requirements.txt
+
+Esto instalará:
+- Flask==3.0.0
+- Werkzeug==3.0.1
+- requests==2.31.0 (NUEVA - necesaria para la API)
+
+================================================================================
+🚀 PASO 2: INICIAR EL SERVIDOR
+================================================================================
+
+Opción A - Windows:
+    EJECUTAR.bat
+
+Opción B - Linux/Mac:
+    ./EJECUTAR.sh
+
+Opción C - Manual:
+    python app.py
+
+El servidor iniciará en: http://localhost:5000
+
+================================================================================
+👑 PASO 3: PANEL DE ADMINISTRACIÓN
+================================================================================
+
+1. Accede a: http://localhost:5000/admin
+
+2. Credenciales:
+   Usuario: admin@rifa.com
+   Contraseña: admin123
+
+3. Verás una NUEVA PESTAÑA: "📄 Generar PDFs"
+
+================================================================================
+📄 PASO 4: GENERAR PDFs (ADMINISTRADOR)
+================================================================================
+
+En la pestaña "📄 Generar PDFs":
+
+1. Selecciona la PLANTILLA:
+   ○ Gris (por defecto)
+   ○ Negro
+
+2. Selecciona la AGRUPACIÓN:
+   ○ 4 boletos por hoja (recomendado)
+   ○ Individual
+
+3. Ingresa los NÚMEROS DE BOLETOS separados por coma:
+   Ejemplo: 1, 5, 10, 25, 100
+
+4. Haz clic en "📄 Generar PDFs"
+
+5. O bien, haz clic en "📦 Generar Todos los Vendidos"
+   (Genera PDFs de TODOS los boletos con estado vendido/físico)
+
+NOTA IMPORTANTE: Solo puedes generar PDFs de boletos VENDIDOS o FÍSICOS.
+                 Asegúrate de aprobar las transferencias primero.
+
+================================================================================
+👤 PASO 5: DESCARGA DE PDFs (USUARIO)
+================================================================================
+
+Los usuarios pueden descargar sus boletos desde el Dashboard:
+
+1. Usuario accede a: http://localhost:5000/dashboard
+
+2. Ve sus compras APROBADAS
+
+3. Si los PDFs han sido generados, verá:
+   📥 Descargar mis Boletos en PDF
+
+4. Si los PDFs aún no se han generado, verá:
+   ℹ️ Generando PDFs
+   Los PDFs de tus boletos están siendo generados.
+
+5. Al hacer clic en el botón de descarga, se descargará un ZIP
+   con todos sus boletos en PDF
+
+================================================================================
+🔄 FLUJO COMPLETO DE EJEMPLO
+================================================================================
+
+1. Usuario compra boletos (ej: #1, #5, #10)
+2. Usuario sube comprobante de transferencia
+3. Admin aprueba la transferencia (en pestaña "Transferencias Pendientes")
+4. Admin genera PDFs:
+   - Va a "📄 Generar PDFs"
+   - Ingresa: 1, 5, 10
+   - Clic en "Generar PDFs"
+   - ✅ PDFs generados correctamente
+5. Usuario regresa a su Dashboard
+6. Ve el botón: 📥 Descargar mis Boletos en PDF
+7. Descarga el ZIP con sus 3 boletos
+
+================================================================================
+📁 ARCHIVOS Y CARPETAS
+================================================================================
+
+Se crearon/modificaron los siguientes archivos:
+
+MODIFICADOS:
+- app.py                     (Backend con nuevos endpoints)
+- requirements.txt           (Agregada librería requests)
+- templates/admin.html       (Nueva pestaña para generar PDFs)
+- templates/dashboard.html   (Botón de descarga para usuarios)
+
+NUEVOS:
+- tickets_pdf/              (Carpeta donde se guardan los PDFs)
+- FUNCIONALIDAD_PDFS.md     (Documentación completa)
+- RESUMEN_IMPLEMENTACION_PDFS.md (Resumen técnico)
+- INSTRUCCIONES_PDFS.txt    (Este archivo)
+
+================================================================================
+🔧 CONFIGURACIÓN DE LA API
+================================================================================
+
+La API utilizada está en:
+https://tickets-fqbvdgbeewbedkfs.centralus-01.azurewebsites.net
+
+Parámetros soportados:
+- numbers: Lista de números separados por comas (1,2,3,4)
+- template: "gris" o "negro"
+- associate: true (4 por hoja) o false (individual)
+
+No necesitas configurar nada, todo está listo para funcionar.
+
+================================================================================
+❓ SOLUCIÓN DE PROBLEMAS
+================================================================================
+
+PROBLEMA: Error al generar PDFs
+SOLUCIÓN: 
+- Verifica que tengas conexión a internet
+- Verifica que los boletos estén VENDIDOS
+- Revisa los logs del servidor
+
+PROBLEMA: El usuario no ve el botón de descarga
+SOLUCIÓN:
+- Verifica que la compra esté APROBADA
+- Genera los PDFs desde el panel de admin
+- Refresca la página del dashboard
+
+PROBLEMA: Error "Module requests not found"
+SOLUCIÓN:
+- pip install requests
+- O ejecuta: pip install -r requirements.txt
+
+================================================================================
+📊 ENDPOINTS DE API AGREGADOS
+================================================================================
+
+POST /api/admin/generar-pdfs
+- Genera PDFs de boletos (solo admin)
+- Body: {"boletos": [1,2,3], "template": "negro", "associate": true}
+
+GET /api/descargar-boletos
+- Descarga PDFs de boletos del usuario
+- Retorna: Archivo ZIP con los boletos
+
+GET /api/usuario/compras (modificado)
+- Ahora incluye campo "tiene_pdf" en cada compra
+
+================================================================================
+📝 BASE DE DATOS
+================================================================================
+
+Se agregaron 2 columnas a la tabla "boletos":
+
+- pdf_generado (INTEGER): 0 = No generado, 1 = Generado
+- pdf_filename (TEXT): Nombre del archivo ZIP
+
+La migración se ejecuta AUTOMÁTICAMENTE al iniciar el servidor.
+
+================================================================================
+✅ VERIFICACIÓN
+================================================================================
+
+Para verificar que todo funciona:
+
+1. ✅ Servidor inicia sin errores
+2. ✅ Puedes acceder a /admin
+3. ✅ Ves la pestaña "📄 Generar PDFs"
+4. ✅ Puedes generar PDFs (verifica que haya boletos vendidos)
+5. ✅ Los usuarios ven el botón de descarga
+
+================================================================================
+🎉 ¡TODO LISTO!
+================================================================================
+
+El sistema está completamente funcional.
+
+Para más información técnica, consulta:
+- FUNCIONALIDAD_PDFS.md
+- RESUMEN_IMPLEMENTACION_PDFS.md
+
+Fecha de implementación: 22 de Diciembre, 2025
+Estado: ✅ COMPLETADO Y FUNCIONAL
+
+================================================================================
+

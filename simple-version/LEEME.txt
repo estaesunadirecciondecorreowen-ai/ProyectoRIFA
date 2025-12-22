@@ -1,0 +1,285 @@
+================================================================
+🎫 SISTEMA DE RIFA ALTRUISTA - Versión Simple
+================================================================
+
+✅ VERSIÓN SIMPLIFICADA Y LISTA PARA USAR
+Esta es una versión completamente funcional del sistema de rifa
+que puedes correr localmente sin necesidad de Node.js ni 
+configuraciones complejas.
+
+================================================================
+📋 REQUISITOS
+================================================================
+
+Solo necesitas tener instalado Python 3.7 o superior.
+
+Para verificar si tienes Python instalado:
+  python --version
+
+Si no lo tienes, descárgalo desde: https://www.python.org/downloads/
+
+================================================================
+🚀 INSTALACIÓN Y EJECUCIÓN
+================================================================
+
+1. INSTALAR DEPENDENCIAS
+   ----------------------
+   Abre una terminal en esta carpeta (simple-version) y ejecuta:
+
+   Windows:
+   > python -m pip install -r requirements.txt
+
+   Mac/Linux:
+   $ python3 -m pip install -r requirements.txt
+
+
+2. INICIAR EL SERVIDOR
+   --------------------
+   En la misma terminal, ejecuta:
+
+   Windows:
+   > python app.py
+
+   Mac/Linux:
+   $ python3 app.py
+
+
+3. ABRIR EN EL NAVEGADOR
+   ----------------------
+   Abre tu navegador y ve a:
+
+   http://localhost:5000
+
+   ¡Listo! El sistema está corriendo.
+
+================================================================
+👤 USUARIOS DE PRUEBA
+================================================================
+
+ADMINISTRADOR:
+  Email: admin@rifa.com
+  Contraseña: admin123
+
+USUARIOS NORMALES:
+  Puedes registrar nuevos usuarios desde la página de registro.
+
+================================================================
+📁 ESTRUCTURA DEL PROYECTO
+================================================================
+
+simple-version/
+├── app.py                    # Servidor Flask principal
+├── rifa.db                   # Base de datos SQLite (se crea automáticamente)
+├── requirements.txt          # Dependencias de Python
+├── LEEME.txt                 # Este archivo
+│
+├── static/                   # Archivos estáticos
+│   └── style.css             # Estilos CSS
+│
+├── templates/                # Plantillas HTML
+│   ├── index.html            # Página principal
+│   ├── login.html            # Inicio de sesión
+│   ├── register.html         # Registro
+│   ├── dashboard.html        # Dashboard de usuario
+│   ├── comprar.html          # Comprar boletos
+│   └── admin.html            # Panel de administración
+│
+└── uploads/                  # Comprobantes subidos (se crea automáticamente)
+
+================================================================
+✨ FUNCIONALIDADES
+================================================================
+
+PARA USUARIOS:
+✅ Registro e inicio de sesión
+✅ Ver boletos disponibles en tiempo real
+✅ Seleccionar y reservar boletos (20 minutos)
+✅ Subir comprobante de transferencia
+✅ Ver historial de compras
+✅ Dashboard personal con estado de boletos
+
+PARA ADMINISTRADORES:
+✅ Dashboard con estadísticas en tiempo real
+✅ Ver transferencias pendientes
+✅ Aprobar o rechazar transferencias
+✅ Ver comprobantes de pago
+✅ Registrar ventas físicas
+✅ Gestión completa de boletos
+
+================================================================
+🎯 CÓMO USAR EL SISTEMA
+================================================================
+
+COMO USUARIO:
+1. Regístrate desde la página principal
+2. Inicia sesión con tu cuenta
+3. Ve a "Comprar Boletos"
+4. Selecciona los boletos que quieres (clic en los verdes)
+5. Haz clic en "Reservar y Continuar"
+6. Realiza la transferencia bancaria
+7. Sube el comprobante con los datos solicitados
+8. Espera a que el administrador apruebe tu compra
+9. ¡Listo! Tus boletos aparecerán en tu dashboard
+
+COMO ADMINISTRADOR:
+1. Inicia sesión con: admin@rifa.com / admin123
+2. En el panel verás las estadísticas generales
+3. Revisa las transferencias pendientes
+4. Haz clic en "Ver Detalles" para revisar cada transferencia
+5. Verifica el comprobante de pago
+6. Aprueba o rechaza la transferencia
+7. Para ventas en efectivo, usa el botón "+ Venta Física"
+
+================================================================
+🔧 CONFIGURACIÓN
+================================================================
+
+DATOS DE LA RIFA:
+Puedes cambiar los datos de la rifa en el archivo app.py,
+líneas 27-35 (RAFFLE_CONFIG):
+
+- nombre: Nombre de la rifa
+- causa: Causa benéfica
+- premio: Premio del sorteo
+- precio_boleto: Precio por boleto
+- total_boletos: Cantidad de boletos (actualmente 500)
+- fecha_sorteo: Fecha y hora del sorteo
+
+DATOS BANCARIOS:
+Para cambiar los datos de la cuenta bancaria donde se reciben
+las transferencias, edita el archivo templates/comprar.html,
+líneas 87-93.
+
+PUERTO DEL SERVIDOR:
+Por defecto corre en el puerto 5000. Para cambiarlo, edita
+la última línea del archivo app.py.
+
+================================================================
+📊 BASE DE DATOS
+================================================================
+
+El sistema usa SQLite, una base de datos liviana que no requiere
+instalación adicional. Se crea automáticamente al iniciar el
+servidor por primera vez.
+
+Archivo: rifa.db
+
+Tablas:
+- usuarios: Usuarios registrados y admins
+- boletos: 500 boletos de la rifa
+- compras: Registro de compras
+- transferencias: Comprobantes de transferencia
+
+Para ver la base de datos, puedes usar herramientas como:
+- DB Browser for SQLite (https://sqlitebrowser.org/)
+- SQLiteStudio (https://sqlitestudio.pl/)
+
+================================================================
+🔒 SEGURIDAD
+================================================================
+
+✅ Contraseñas encriptadas (hash)
+✅ Sesiones seguras
+✅ Validación de archivos subidos
+✅ Prevención de duplicados (hash de comprobantes)
+✅ Verificación de folios únicos
+✅ Protección de rutas (login requerido)
+✅ Roles de usuario (USER/ADMIN)
+
+IMPORTANTE: Esta es una versión simplificada para uso local.
+Para usar en producción, considera:
+- Cambiar el secret_key en app.py (línea 19)
+- Usar HTTPS
+- Configurar un servidor de producción (Gunicorn, etc.)
+- Usar una base de datos más robusta (PostgreSQL, MySQL)
+
+================================================================
+⚠️ SOLUCIÓN DE PROBLEMAS
+================================================================
+
+PROBLEMA: "No se puede conectar al servidor"
+SOLUCIÓN: Verifica que el servidor esté corriendo (python app.py)
+
+PROBLEMA: "Error al instalar dependencias"
+SOLUCIÓN: Verifica tu conexión a internet y que Python esté instalado
+
+PROBLEMA: "Puerto 5000 ya en uso"
+SOLUCIÓN: Cierra otras aplicaciones usando ese puerto o cambia
+          el puerto en la última línea de app.py
+
+PROBLEMA: "No puedo subir comprobantes"
+SOLUCIÓN: Verifica que la carpeta uploads/ exista y tenga permisos
+
+PROBLEMA: "Los boletos no se actualizan"
+SOLUCIÓN: Refresca la página (F5) o espera 30 segundos (auto-actualización)
+
+================================================================
+💡 TIPS Y RECOMENDACIONES
+================================================================
+
+1. Para reiniciar la base de datos, simplemente elimina el 
+   archivo rifa.db y vuelve a iniciar el servidor.
+
+2. Los comprobantes se guardan en la carpeta uploads/
+   Haz respaldo de esta carpeta regularmente.
+
+3. El sistema actualiza los boletos automáticamente cada 30 segundos.
+
+4. Las reservas expiran después de 20 minutos automáticamente.
+
+5. Puedes correr el servidor en tu red local y acceder desde
+   otros dispositivos usando tu IP local en lugar de localhost.
+
+================================================================
+🎨 PERSONALIZACIÓN
+================================================================
+
+COLORES:
+Los colores se definen en static/style.css (líneas 13-23)
+
+TEXTOS:
+Todos los textos están en español y se pueden editar directamente
+en los archivos HTML de la carpeta templates/
+
+LOGO:
+Actualmente usa un emoji 🎫. Para usar un logo personalizado,
+reemplaza "🎫" en las páginas HTML con:
+<img src="/static/logo.png" alt="Logo">
+
+================================================================
+📞 SOPORTE
+================================================================
+
+Si tienes problemas o preguntas:
+
+1. Revisa este archivo LEEME.txt completamente
+2. Verifica la sección de "Solución de Problemas"
+3. Revisa los comentarios en el código (app.py)
+
+================================================================
+📝 LICENCIA Y CRÉDITOS
+================================================================
+
+Este sistema fue creado como una versión simplificada del
+proyecto "Rifa Altruista" para facilitar su uso local sin
+necesidad de configuraciones complejas.
+
+Tecnologías utilizadas:
+- Python 3.7+
+- Flask (framework web)
+- SQLite (base de datos)
+- HTML5 + CSS3
+- JavaScript (vanilla)
+
+================================================================
+🎊 ¡DISFRUTA TU RIFA!
+================================================================
+
+Este sistema está listo para usarse inmediatamente.
+Solo instala las dependencias, inicia el servidor y comienza
+a vender boletos para tu causa altruista.
+
+¡Mucho éxito con tu rifa! 🎫💚
+
+================================================================
+

@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum TicketStatus {
+  available
+  reserved_pending_payment
+  pending_review
+  sold
+  sold_physical
+  cancelled
+}
+
+enum PurchaseStatus {
+  pending
+  pending_review
+  approved
+  rejected
+  cancelled
+}
+
+enum TransferStatus {
+  pending_review
+  approved
+  rejected
+}
+
+model User {
+  id            String    @id @default(cuid())
+  nombre        String
+  email         String    @unique
+  telefono      String?
+  password_hash String
+  email_verified Boolean  @default(false)
+  verification_token String?
+  reset_token   String?
+  reset_token_expiry DateTime?
+  rol           UserRole @default(USER)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  
+  tickets       Ticket[]
+  purchases     Purchase[]
+  admin_logs    AdminLog[]
+  
+  @@index([email])
+}
+
+model Ticket {
+  id          String       @id @default(cuid())
+  numero      Int          @unique
+  estado      TicketStatus @default(available)
+  user_id     String?
+  purchase_id String?
+  reserved_until DateTime?
+  nota        String?
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  
+  user        User?        @relation(fields: [user_id], references: [id])
+  purchase    Purchase?    @relation(fields: [purchase_id], references: [id])
+  
+  @@index([estado])
+  @@index([numero])
+}
+
+model Purchase {
+  id          String         @id @default(cuid())
+  user_id     String
+  total       Float
+  status      PurchaseStatus @default(pending)
+  method      String         // "transferencia" o "fisico"
+  unique_code String         @unique // Ej: RIFA-1234
+  created_at  DateTime       @default(now())
+  updated_at  DateTime       @updatedAt
+  
+  user        User           @relation(fields: [user_id], references: [id])
+  tickets     Ticket[]
+  transfer    Transfer?
+  
+  @@index([user_id])
+  @@index([status])
+  @@index([unique_code])
+}
+
+model Transfer {
+  id              String         @id @default(cuid())
+  purchase_id     String         @unique
+  folio           String         @unique
+  monto           Float
+  fecha           DateTime
+  comprobante_url String
+  comprobante_hash String        @unique
+  status          TransferStatus @default(pending_review)
+  admin_notes     String?
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+  
+  purchase        Purchase       @relation(fields: [purchase_id], references: [id])
+  
+  @@index([folio])
+  @@index([status])
+}
+
+model AdminLog {
+  id         String   @id @default(cuid())
+  admin_id   String
+  action     String
+  payload    String   @db.Text
+  created_at DateTime @default(now())
+  
+  admin      User     @relation(fields: [admin_id], references: [id])
+  
+  @@index([admin_id])
+  @@index([created_at])
+}
+
+model RaffleConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String   @db.Text
+  updated_at  DateTime @updatedAt
+  
+  @@index([key])
+}
+
+

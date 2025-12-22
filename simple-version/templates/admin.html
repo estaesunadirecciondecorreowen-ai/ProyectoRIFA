@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Rifa Altruista</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- COPOS DE NIEVE -->
+    <div class="snowflakes" aria-hidden="true">
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="navbar-brand">🎫 Rifa Altruista - Admin</a>
+            <div class="navbar-menu">
+                <span style="margin-right: 1rem;">👑 <strong>{{ user.nombre }}</strong></span>
+                <button onclick="showVentaFisica()" class="btn btn-success">+ Venta Física</button>
+                <button onclick="logout()" class="btn btn-secondary">Cerrar Sesión</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO -->
+    <div style="padding: 2rem 0; min-height: calc(100vh - 80px);">
+        <div class="container">
+            <!-- ESTADÍSTICAS -->
+            <h2 class="mb-3" style="color: white;">📊 Estadísticas Generales</h2>
+            
+            <div id="stats-loading" class="loading">
+                <div class="spinner"></div>
+            </div>
+
+            <div id="stats-grid" class="stats-grid hidden"></div>
+
+            <!-- TABS DE NAVEGACIÓN -->
+            <div class="card" style="margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;">
+                <div style="display: flex; gap: 1rem; border-bottom: 2px solid var(--color-gray-200);">
+                    <button onclick="cambiarTab('panel')" id="tab-panel" class="tab-button active">
+                        🎫 Panel de Boletos
+                    </button>
+                    <button onclick="cambiarTab('tabla')" id="tab-tabla" class="tab-button">
+                        📋 Tabla de Boletos
+                    </button>
+                    <button onclick="cambiarTab('transferencias')" id="tab-transferencias" class="tab-button">
+                        💳 Transferencias Pendientes
+                    </button>
+                    <button onclick="cambiarTab('pdfs')" id="tab-pdfs" class="tab-button">
+                        📄 Generar PDFs
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB: PANEL DE BOLETOS -->
+            <div id="content-panel" class="tab-content card" style="border-top-left-radius: 0; border-top-right-radius: 0;">
+                <div id="boletos-grid-loading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+                
+                <div id="boletos-grid-container" class="hidden">
+                    <!-- LEYENDA -->
+                    <div class="legend mb-3">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #10b981;"></div>
+                            <span>Disponible</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #f59e0b;"></div>
+                            <span>Pendiente</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #d1d5db;"></div>
+                            <span>Vendido</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #8b5cf6;"></div>
+                            <span>Físico</span>
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-3">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--color-gray-700); margin-bottom: 0.5rem;">
+                            Panel de Boletos (25 x 20)
+                        </h3>
+                        <p style="font-size: 0.875rem; color: var(--color-gray-600);">Total: 500 boletos</p>
+                    </div>
+                    
+                    <div id="boletos-grid" class="tickets-grid"></div>
+                </div>
+            </div>
+
+            <!-- TAB: TABLA DE BOLETOS -->
+            <div id="content-tabla" class="tab-content card hidden" style="border-top-left-radius: 0; border-top-right-radius: 0;">
+                <div id="boletos-loading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+                
+                <div id="boletos-table-container" class="hidden table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#Boleto</th>
+                                <th>Nombre</th>
+                                <th>Correo</th>
+                                <th>Vendedor</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="boletos-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: TRANSFERENCIAS PENDIENTES -->
+            <div id="content-transferencias" class="tab-content card hidden" style="border-top-left-radius: 0; border-top-right-radius: 0;">
+                <div id="transfers-loading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+                
+                <div id="transfers-container" class="hidden"></div>
+            </div>
+
+            <!-- TAB: GENERAR PDFs -->
+            <div id="content-pdfs" class="tab-content card hidden" style="border-top-left-radius: 0; border-top-right-radius: 0;">
+                <h3 style="margin-bottom: 1rem;">📄 Generar PDFs de Boletos</h3>
+                
+                <div class="alert alert-info mb-3">
+                    <strong>ℹ️ Instrucciones:</strong><br>
+                    1. Selecciona la plantilla (gris o negro)<br>
+                    2. Elige si agrupar 4 boletos por hoja o individualmente<br>
+                    3. Ingresa los números de boletos separados por coma<br>
+                    4. Haz clic en "Generar PDFs"<br><br>
+                    <strong>Nota:</strong> Solo se pueden generar PDFs de boletos vendidos o físicos.
+                </div>
+
+                <div id="pdf-alert" class="hidden"></div>
+
+                <form id="pdfForm">
+                    <div class="form-group">
+                        <label class="form-label">Plantilla</label>
+                        <div style="display: flex; gap: 1rem;">
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="template" value="gris" checked>
+                                <span style="margin-left: 0.5rem;">Gris</span>
+                            </label>
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="template" value="negro">
+                                <span style="margin-left: 0.5rem;">Negro</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Agrupación</label>
+                        <div style="display: flex; gap: 1rem;">
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="associate" value="true" checked>
+                                <span style="margin-left: 0.5rem;">4 boletos por hoja</span>
+                            </label>
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="associate" value="false">
+                                <span style="margin-left: 0.5rem;">Individual</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="boletos-pdf">Números de Boletos *</label>
+                        <input type="text" id="boletos-pdf" class="form-input" 
+                               placeholder="Ej: 1, 2, 3, 45, 100" required>
+                        <small style="color: var(--color-gray-600);">Ingresa los números separados por comas</small>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                        <button type="submit" class="btn btn-primary" id="pdfBtn">
+                            📄 Generar PDFs
+                        </button>
+                        <button type="button" onclick="generarTodosVendidos()" class="btn btn-success">
+                            📦 Generar Todos los Vendidos
+                        </button>
+                    </div>
+                </form>
+
+                <div id="pdf-result" class="hidden" style="margin-top: 2rem;">
+                    <div class="alert alert-success">
+                        <strong>✅ PDFs generados exitosamente</strong><br>
+                        <span id="pdf-result-message"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VENTA FÍSICA -->
+    <div id="modal-venta" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">🏪 Registrar Venta Física</div>
+            
+            <form id="ventaForm">
+                <div class="form-group">
+                    <label class="form-label" for="nombre-vendedor">Nombre del Vendedor *</label>
+                    <input type="text" id="nombre-vendedor" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="nombre-cliente">Nombre del Cliente *</label>
+                    <input type="text" id="nombre-cliente" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="telefono-cliente">Teléfono</label>
+                    <input type="tel" id="telefono-cliente" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Boletos * (separados por coma)</label>
+                    <input type="text" id="boletos-venta" class="form-input" 
+                           placeholder="Ej: 1, 2, 3, 45" required>
+                    <small style="color: var(--color-gray-600);">Ingresa los números de boletos separados por comas</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="notas-venta">Notas</label>
+                    <textarea id="notas-venta" class="form-input" rows="3"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-success" id="ventaBtn">Registrar Venta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL REVISAR TRANSFERENCIA -->
+    <div id="modal-transfer" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Revisar Transferencia</div>
+            
+            <div id="transfer-detail"></div>
+
+            <div class="modal-footer">
+                <button type="button" onclick="closeModal()" class="btn btn-secondary">Cerrar</button>
+                <button type="button" onclick="rechazarTransferencia()" class="btn btn-danger">Rechazar</button>
+                <button type="button" onclick="aprobarTransferencia()" class="btn btn-success" id="approveBtn">Aprobar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTransferId = null;
+        let currentTab = 'panel';
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/';
+        }
+
+        function cambiarTab(tab) {
+            // Ocultar todos los contenidos
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Quitar clase active de todos los botones
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar contenido seleccionado
+            document.getElementById('content-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            currentTab = tab;
+        }
+
+        function showAlert(message, type = 'success') {
+            alert(message);
+        }
+
+        async function cargarEstadisticas() {
+            try {
+                const response = await fetch('/api/admin/estadisticas');
+                const stats = await response.json();
+                
+                const grid = document.getElementById('stats-grid');
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.boletos.disponibles}</div>
+                        <div class="stat-label">Boletos Disponibles</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <div class="stat-value">${stats.boletos.vendidos}</div>
+                        <div class="stat-label">Boletos Vendidos</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                        <div class="stat-value">${stats.boletos.pendientes}</div>
+                        <div class="stat-label">Boletos Pendientes</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                        <div class="stat-value">${stats.transferencias_pendientes}</div>
+                        <div class="stat-label">Transferencias Pendientes</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                        <div class="stat-value">${stats.usuarios}</div>
+                        <div class="stat-label">Usuarios Registrados</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                        <div class="stat-value">$${stats.ingresos.toLocaleString()}</div>
+                        <div class="stat-label">Ingresos Totales</div>
+                    </div>
+                `;
+                
+                document.getElementById('stats-loading').classList.add('hidden');
+                grid.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function cargarBoletosGrid() {
+            try {
+                const response = await fetch('/api/boletos');
+                const boletos = await response.json();
+                
+                const grid = document.getElementById('boletos-grid');
+                grid.innerHTML = '';
+                
+                boletos.forEach(boleto => {
+                    const div = document.createElement('div');
+                    div.className = `ticket ${boleto.estado}`;
+                    div.textContent = boleto.numero;
+                    div.style.cursor = 'default';
+                    
+                    // Agregar tooltip con información
+                    if (boleto.estado !== 'disponible') {
+                        div.title = `Boleto ${boleto.numero} - Estado: ${boleto.estado.toUpperCase()}`;
+                    }
+                    
+                    grid.appendChild(div);
+                });
+                
+                document.getElementById('boletos-grid-loading').classList.add('hidden');
+                document.getElementById('boletos-grid-container').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function cargarBoletos() {
+            try {
+                const response = await fetch('/api/admin/boletos-vendidos');
+                const boletos = await response.json();
+                
+                const tbody = document.getElementById('boletos-tbody');
+                
+                if (boletos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay boletos vendidos aún</td></tr>';
+                } else {
+                    tbody.innerHTML = boletos.map(b => `
+                        <tr>
+                            <td><strong>${b.numero}</strong></td>
+                            <td>${b.comprador_nombre || 'N/A'}</td>
+                            <td>${b.usuario_email || 'N/A'}</td>
+                            <td>${b.vendedor_nombre || 'N/A'}</td>
+                            <td>
+                                <span class="badge ${
+                                    b.estado === 'vendido' || b.estado === 'fisico' ? 'badge-success' : 
+                                    b.estado === 'pendiente' ? 'badge-warning' : 
+                                    'badge-info'
+                                }">${b.estado.toUpperCase()}</span>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+                
+                document.getElementById('boletos-loading').classList.add('hidden');
+                document.getElementById('boletos-table-container').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function cargarTransferencias() {
+            try {
+                const response = await fetch('/api/admin/transferencias');
+                const transfers = await response.json();
+                
+                const container = document.getElementById('transfers-container');
+                
+                if (transfers.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info">✅ No hay transferencias pendientes</div>';
+                } else {
+                    container.innerHTML = transfers.map(t => `
+                        <div class="card" style="margin-bottom: 1rem; border-left: 4px solid var(--color-warning);">
+                            <div class="flex justify-between align-center mb-2">
+                                <h3 style="margin: 0;">Compra ${t.codigo_compra}</h3>
+                                <button onclick="verTransferencia(${t.id})" class="btn btn-primary">
+                                    Ver Detalles
+                                </button>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <div>
+                                    <strong>Cliente:</strong><br>
+                                    ${t.usuario.nombre}<br>
+                                    ${t.usuario.email}<br>
+                                    ${t.usuario.telefono || 'Sin teléfono'}
+                                </div>
+                                <div>
+                                    <strong>Comprador:</strong><br>
+                                    ${t.comprador_nombre || 'N/A'}<br>
+                                    ${t.telefono_comprador ? `📱 ${t.telefono_comprador}` : 'Sin teléfono'}
+                                </div>
+                                <div>
+                                    <strong>Folio:</strong> ${t.folio}<br>
+                                    <strong>Monto:</strong> $${t.monto}<br>
+                                    <strong>Fecha:</strong> ${new Date(t.fecha_transferencia).toLocaleDateString('es-MX')}
+                                </div>
+                                <div>
+                                    <strong>Boletos (${t.boletos.length}):</strong><br>
+                                    ${t.boletos.slice(0, 10).map(num => `No. ${num}`).join(', ')}${t.boletos.length > 10 ? '...' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                // Guardar datos para el modal
+                window.transfersData = transfers;
+                
+                document.getElementById('transfers-loading').classList.add('hidden');
+                container.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function verTransferencia(id) {
+            const transfer = window.transfersData.find(t => t.id === id);
+            if (!transfer) return;
+            
+            currentTransferId = id;
+            
+            const detail = document.getElementById('transfer-detail');
+            detail.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <h3>Información del Cliente</h3>
+                    <p><strong>Nombre:</strong> ${transfer.usuario.nombre}</p>
+                    <p><strong>Email:</strong> ${transfer.usuario.email}</p>
+                    <p><strong>Teléfono:</strong> ${transfer.usuario.telefono || 'No proporcionado'}</p>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <h3>Información de la Compra</h3>
+                    <p><strong>Código de Compra:</strong> ${transfer.codigo_compra}</p>
+                    <p><strong>Nombre del Comprador:</strong> ${transfer.comprador_nombre || 'No especificado'}</p>
+                    <p><strong>Teléfono del Comprador:</strong> ${transfer.telefono_comprador || 'No especificado'}</p>
+                    <p><strong>Vendedor:</strong> ${transfer.vendedor_nombre || 'No especificado'}</p>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <h3>Información de la Transferencia</h3>
+                    <p><strong>Folio:</strong> ${transfer.folio}</p>
+                    <p><strong>Monto:</strong> $${transfer.monto}</p>
+                    <p><strong>Fecha:</strong> ${new Date(transfer.fecha_transferencia).toLocaleDateString('es-MX')}</p>
+                    <p><strong>Total Esperado:</strong> $${transfer.total_compra}</p>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <h3>Boletos (${transfer.boletos.length})</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        ${transfer.boletos.map(num => `<span class="badge badge-warning">#${num}</span>`).join('')}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <h3>Comprobante</h3>
+                    <img src="/uploads/${transfer.comprobante_url}" class="comprobante-preview" 
+                         style="max-width: 100%; border: 1px solid var(--color-gray-300); border-radius: 0.5rem;">
+                </div>
+            `;
+            
+            document.getElementById('modal-transfer').classList.add('active');
+        }
+
+        async function aprobarTransferencia() {
+            if (!confirm('¿Confirmas que deseas aprobar esta transferencia?')) return;
+            
+            const btn = document.getElementById('approveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Aprobando...';
+            
+            try {
+                const response = await fetch(`/api/admin/transferencias/${currentTransferId}/aprobar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notas: '' })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('✅ Transferencia aprobada correctamente');
+                    closeModal();
+                    cargarEstadisticas();
+                    cargarBoletosGrid();
+                    cargarBoletos();
+                    cargarTransferencias();
+                } else {
+                    alert('Error: ' + (data.error || 'Error desconocido'));
+                    btn.disabled = false;
+                    btn.textContent = 'Aprobar';
+                }
+            } catch (error) {
+                alert('Error de conexión');
+                btn.disabled = false;
+                btn.textContent = 'Aprobar';
+            }
+        }
+
+        async function rechazarTransferencia() {
+            const motivo = prompt('¿Cuál es el motivo del rechazo?', '');
+            
+            if (!motivo || motivo.trim() === '') {
+                alert('Debes proporcionar un motivo del rechazo');
+                return;
+            }
+            
+            if (!confirm('¿Confirmas que deseas rechazar esta transferencia?')) return;
+            
+            try {
+                const response = await fetch(`/api/admin/transferencias/${currentTransferId}/rechazar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ motivo: motivo.trim() })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('Transferencia rechazada. Los boletos han sido liberados.');
+                    closeModal();
+                    cargarEstadisticas();
+                    cargarBoletosGrid();
+                    cargarBoletos();
+                    cargarTransferencias();
+                } else {
+                    alert('Error: ' + (data.error || 'Error desconocido'));
+                }
+            } catch (error) {
+                alert('Error de conexión');
+            }
+        }
+
+        function showVentaFisica() {
+            document.getElementById('modal-venta').classList.add('active');
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+            document.getElementById('ventaForm').reset();
+        }
+
+        document.getElementById('ventaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const vendedor = document.getElementById('nombre-vendedor').value.trim();
+            const nombre = document.getElementById('nombre-cliente').value.trim();
+            const telefono = document.getElementById('telefono-cliente').value.trim();
+            const boletosStr = document.getElementById('boletos-venta').value.trim();
+            const notas = document.getElementById('notas-venta').value.trim();
+            
+            // Parsear boletos
+            const boletos = boletosStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            
+            if (boletos.length === 0) {
+                alert('Ingresa al menos un número de boleto válido');
+                return;
+            }
+            
+            const btn = document.getElementById('ventaBtn');
+            btn.disabled = true;
+            btn.textContent = 'Registrando...';
+            
+            try {
+                const response = await fetch('/api/admin/venta-fisica', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ boletos, nombre, telefono, notas, vendedor })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert(`✅ ${data.message}`);
+                    closeModal();
+                    cargarEstadisticas();
+                    cargarBoletosGrid();
+                    cargarBoletos();
+                } else {
+                    alert('Error: ' + (data.error || 'Error desconocido'));
+                }
+            } catch (error) {
+                alert('Error de conexión');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Registrar Venta';
+        });
+
+        // Cerrar modal al hacer clic fuera
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+        });
+
+        // Manejar formulario de generación de PDFs
+        document.getElementById('pdfForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const boletosStr = document.getElementById('boletos-pdf').value.trim();
+            const template = document.querySelector('input[name="template"]:checked').value;
+            const associate = document.querySelector('input[name="associate"]:checked').value === 'true';
+            
+            // Parsear boletos
+            const boletos = boletosStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            
+            if (boletos.length === 0) {
+                showPdfAlert('Ingresa al menos un número de boleto válido', 'warning');
+                return;
+            }
+            
+            const btn = document.getElementById('pdfBtn');
+            btn.disabled = true;
+            btn.textContent = 'Generando PDFs...';
+            
+            try {
+                const response = await fetch('/api/admin/generar-pdfs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ boletos, template, associate })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showPdfAlert(`✅ ${data.message}`, 'success');
+                    document.getElementById('boletos-pdf').value = '';
+                    
+                    // Actualizar estadísticas
+                    cargarEstadisticas();
+                    cargarBoletosGrid();
+                    cargarBoletos();
+                } else {
+                    showPdfAlert('❌ ' + (data.error || 'Error desconocido'), 'error');
+                }
+            } catch (error) {
+                showPdfAlert('❌ Error de conexión: ' + error.message, 'error');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = '📄 Generar PDFs';
+        });
+
+        function showPdfAlert(message, type = 'info') {
+            const alertDiv = document.getElementById('pdf-alert');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = message;
+            alertDiv.classList.remove('hidden');
+            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        async function generarTodosVendidos() {
+            if (!confirm('¿Deseas generar PDFs de TODOS los boletos vendidos que aún no tienen PDF? Esta operación puede tardar varios minutos.')) {
+                return;
+            }
+            
+            try {
+                // Primero obtener todos los boletos vendidos
+                const response = await fetch('/api/admin/boletos-vendidos');
+                const boletos = await response.json();
+                
+                // Filtrar solo los vendidos o físicos
+                const boletosVendidos = boletos
+                    .filter(b => b.estado === 'vendido' || b.estado === 'fisico')
+                    .map(b => b.numero);
+                
+                if (boletosVendidos.length === 0) {
+                    showPdfAlert('No hay boletos vendidos para generar PDFs', 'info');
+                    return;
+                }
+                
+                // Generar PDFs
+                document.getElementById('boletos-pdf').value = boletosVendidos.join(', ');
+                document.getElementById('pdfForm').dispatchEvent(new Event('submit'));
+                
+            } catch (error) {
+                showPdfAlert('Error al cargar boletos vendidos: ' + error.message, 'error');
+            }
+        }
+
+        // Cargar datos
+        cargarEstadisticas();
+        cargarBoletosGrid();
+        cargarBoletos();
+        cargarTransferencias();
+
+        // Actualizar cada 30 segundos
+        setInterval(() => {
+            cargarEstadisticas();
+            cargarBoletosGrid();
+            cargarBoletos();
+            cargarTransferencias();
+        }, 30000);
+    </script>
+</body>
+</html>
