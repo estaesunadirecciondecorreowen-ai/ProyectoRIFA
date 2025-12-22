@@ -1,13 +1,17 @@
+// lib/auth.ts
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import bcrypt from "bcryptjs";
 
 import prisma from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  secret: process.env.NEXTAUTH_SECRET,
-  session: { strategy: "jwt" },
+
+  session: {
+    strategy: "jwt",
+  },
 
   providers: [
     CredentialsProvider({
@@ -18,35 +22,61 @@ export const authOptions: NextAuthOptions = {
       },
 
       async authorize(credentials) {
-        const email = credentials?.email?.trim().toLowerCase();
-        const password = credentials?.password;
+        if (!credentials?.email || !credentials.password) {
+          return null;
+        }
 
-        if (!email || !password) return null;
+        const email = credentials.email.trim().toLowerCase();
 
-        // IMPORTANTÍSIMO: USA await (NO return directo de prisma.user.findUnique)
-        const dbUser = await prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
           where: { email },
-          select: {
-            id: true,
-            email: true,
-            nombre: true, // si tu campo no se llama "nombre", cámbialo por el real
-            // passwordHash: true, // si tienes hash, aquí lo usarías
-          },
         });
 
-        if (!dbUser) return null;
+        if (!user || !user.password_hash) {
+          return null;
+        }
 
-        // Aquí debería ir la validación real del password (bcrypt)
-        // if (!ok) return null;
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password_hash
+        );
 
-        // Regresa un objeto tipo "User" de NextAuth (solo campos válidos)
+        if (!isValid) {
+          return null;
+        }
+
+        // Devolver el objeto User con los campos que NextAuth espera
         return {
-          id: dbUser.id,
-          email: dbUser.email,
-          name: dbUser.nombre ?? dbUser.email ?? "Usuario",
-          image: null,
+          id: user.id,
+          email: user.email,
+          name: user.nombre,
+          role: user.rol,
         };
       },
     }),
   ],
+
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role;
+      }
+      return session;
+    },
+  },
+
+  pages: {
+    signIn: "/auth/login",
+  },
+
+  secret: process.env.NEXTAUTH_SECRET,
 };
