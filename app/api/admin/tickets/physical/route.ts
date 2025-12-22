@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     }
 
     const adminId = (session.user as any).id;
-    const ticketPrice = parseFloat(process.env.NEXT_PUBLIC_TICKET_PRICE || '100');
+    const ticketPrice = parseFloat(process.env.NEXT_PUBLIC_TICKET_PRICE || '50');
     const total = ticketPrice * ticketNumbers.length;
 
     // Si se proporcionó email del comprador, buscar o crear usuario

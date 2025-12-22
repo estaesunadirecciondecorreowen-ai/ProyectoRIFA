@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
+import SnowEffect from '@/components/SnowEffect';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 export default function DashboardPage() {
@@ -57,7 +58,8 @@ export default function DashboardPage() {
   const totalTickets = approvedPurchases.reduce((acc, p) => acc + p.tickets.length, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-red-900 via-red-800 to-red-900">
+      <SnowEffect />
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8">

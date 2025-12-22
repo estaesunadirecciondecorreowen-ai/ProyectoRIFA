@@ -69,7 +69,7 @@ async function main() {
     },
     {
       key: 'ticket_price',
-      value: process.env.NEXT_PUBLIC_TICKET_PRICE || '100',
+      value: process.env.NEXT_PUBLIC_TICKET_PRICE || '50',
     },
   ];
 

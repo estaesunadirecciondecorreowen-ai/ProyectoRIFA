@@ -2,31 +2,34 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Countdown from '@/components/Countdown';
 import TicketGrid from '@/components/TicketGrid';
+import SnowEffect from '@/components/SnowEffect';
 
 export default function Home() {
   const raffleName = process.env.NEXT_PUBLIC_RAFFLE_NAME || 'Rifa Altruista';
   const raffleCause = process.env.NEXT_PUBLIC_RAFFLE_CAUSE || 'Causa benéfica';
   const rafflePrize = process.env.NEXT_PUBLIC_RAFFLE_PRIZE || 'Premio especial';
-  const ticketPrice = process.env.NEXT_PUBLIC_TICKET_PRICE || '100';
+  const ticketPrice = process.env.NEXT_PUBLIC_TICKET_PRICE || '50';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-red-900 via-red-800 to-red-900">
+      <SnowEffect />
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-primary-600 to-purple-600 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-r from-red-700 via-red-600 to-green-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center animate-fade-in">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+            <div className="text-6xl mb-4">🎄</div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
               {raffleName}
             </h1>
-            <p className="text-2xl md:text-3xl mb-8 text-white/90">
+            <p className="text-2xl md:text-3xl mb-8 text-white drop-shadow-md">
               Tu boleto apoya a: <span className="font-bold">{raffleCause}</span>
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 href="/comprar"
-                className="px-8 py-4 bg-white text-primary-600 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl"
+                className="px-8 py-4 bg-white text-red-600 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl"
               >
                 🎫 Comprar Boletos
               </Link>
@@ -45,7 +48,7 @@ export default function Home() {
           <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M0 0L60 10C120 20 240 40 360 46.7C480 53 600 47 720 43.3C840 40 960 40 1080 46.7C1200 53 1320 67 1380 73.3L1440 80V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0V0Z"
-              fill="rgb(249, 250, 251)"
+              fill="rgb(127, 29, 29)"
             />
           </svg>
         </div>
@@ -54,6 +57,21 @@ export default function Home() {
       {/* Countdown Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Countdown />
+        
+        {/* Link a la Noticia */}
+        <div className="mt-6 text-center">
+          <a
+            href="https://x.com/telediario/status/1985533370336702812?s=12"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-red-600 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            📰 Ver Noticia Oficial
+          </a>
+        </div>
       </section>
 
       {/* Prize Section */}
@@ -208,16 +226,17 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-8">
+      <footer className="bg-red-950 text-white py-8 border-t-4 border-green-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-4xl mb-2">🎅</div>
           <p className="text-lg mb-2">
             <strong>{raffleName}</strong>
           </p>
-          <p className="text-gray-400">
+          <p className="text-red-200">
             Apoyando a {raffleCause}
           </p>
-          <p className="text-gray-500 text-sm mt-4">
-            © 2024 Todos los derechos reservados
+          <p className="text-red-300 text-sm mt-4">
+            © 2026 Todos los derechos reservados | Sorteo: 6 de Enero 2026 a las 6:00 PM (18:00 hrs CDMX)
           </p>
         </div>
       </footer>

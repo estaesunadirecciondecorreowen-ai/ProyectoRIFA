@@ -28,18 +28,6 @@ export async function POST(request: Request) {
 
     const userId = (session.user as any).id;
 
-    // Verificar que el usuario esté verificado
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user?.email_verified) {
-      return NextResponse.json(
-        { error: 'Debes verificar tu correo electrónico antes de comprar boletos' },
-        { status: 403 }
-      );
-    }
-
     // Verificar que todos los boletos estén disponibles
     const tickets = await prisma.ticket.findMany({
       where: {
@@ -69,7 +57,7 @@ export async function POST(request: Request) {
     }
 
     // Crear compra
-    const ticketPrice = parseFloat(process.env.NEXT_PUBLIC_TICKET_PRICE || '100');
+    const ticketPrice = parseFloat(process.env.NEXT_PUBLIC_TICKET_PRICE || '50');
     const total = ticketPrice * ticketNumbers.length;
     const uniqueCode = generateUniqueCode();
 

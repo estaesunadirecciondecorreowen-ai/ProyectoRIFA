@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import SnowEffect from '@/components/SnowEffect';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 export default function AdminPage() {
@@ -59,7 +60,8 @@ export default function AdminPage() {
   const availableCount = ticketStats.available || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-red-900 via-red-800 to-red-900">
+      <SnowEffect />
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -164,7 +166,7 @@ export default function AdminPage() {
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
                 <span className="text-gray-600">Precio por Boleto</span>
                 <span className="font-bold text-lg">
-                  {formatCurrency(parseFloat(process.env.NEXT_PUBLIC_TICKET_PRICE || '100'))}
+                  {formatCurrency(parseFloat(process.env.NEXT_PUBLIC_TICKET_PRICE || '50'))}
                 </span>
               </div>
             </div>

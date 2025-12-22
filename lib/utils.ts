@@ -1,33 +1,20 @@
-// lib/utils.ts
 import crypto from "crypto";
-import { prisma } from "./prisma";
+import prisma from "./prisma";
 
-/**
- * Genera un código único para rifas/folios
- */
 export function generateUniqueCode(): string {
   const timestamp = Date.now().toString(36).toUpperCase();
   const random = Math.random().toString(36).substring(2, 6).toUpperCase();
   return `RIFA-${timestamp}${random}`;
 }
 
-/**
- * Genera un token aleatorio (ej. para links seguros)
- */
 export function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
 
-/**
- * Hash SHA-256 de un archivo/buffer (ej. comprobantes)
- */
 export function hashFile(buffer: Buffer): string {
   return crypto.createHash("sha256").update(buffer).digest("hex");
 }
 
-/**
- * Formatea moneda MXN
- */
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("es-MX", {
     style: "currency",
@@ -35,9 +22,6 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-/**
- * Formatea fecha para MX
- */
 export function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("es-MX", {
     year: "numeric",
@@ -48,32 +32,13 @@ export function formatDate(date: Date): string {
   }).format(date);
 }
 
-/**
- * Calcula el tiempo restante a partir de un ISO string/fecha string
- */
 export function calculateTimeRemaining(targetDate: string) {
   const now = Date.now();
   const target = new Date(targetDate).getTime();
   const difference = target - now;
 
-  if (Number.isNaN(target)) {
-    return {
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      expired: true,
-    };
-  }
-
   if (difference <= 0) {
-    return {
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      expired: true,
-    };
+    return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
   }
 
   return {
@@ -85,9 +50,6 @@ export function calculateTimeRemaining(targetDate: string) {
   };
 }
 
-/**
- * Validación básica de folio
- */
 export function validateFolio(folio: string): boolean {
   return folio.length >= 5 && folio.length <= 50;
 }
@@ -97,8 +59,9 @@ export function validateAmount(amount: number, expected: number): boolean {
 }
 
 /**
- * Limpia reservaciones vencidas (server-side).
- * IMPORTANTE: Esta función debe ejecutarse solo en el servidor.
+ * Limpia reservaciones vencidas:
+ * - reserved_pending_payment con reserved_until < now
+ * - vuelve a available y borra user_id/purchase_id/reserved_until
  */
 export async function cleanExpiredReservations() {
   const now = new Date();
@@ -106,9 +69,7 @@ export async function cleanExpiredReservations() {
   await prisma.ticket.updateMany({
     where: {
       estado: "reserved_pending_payment",
-      reserved_until: {
-        lt: now,
-      },
+      reserved_until: { lt: now },
     },
     data: {
       estado: "available",
@@ -117,6 +78,8 @@ export async function cleanExpiredReservations() {
       reserved_until: null,
     },
   });
+
+  return { ok: true };
 }
 
 export function getTicketColor(status: string): string {

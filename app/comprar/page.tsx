@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import Navbar from '@/components/Navbar';
+import SnowEffect from '@/components/SnowEffect';
 import TicketGrid from '@/components/TicketGrid';
 
 export default function ComprarPage() {
@@ -107,7 +108,7 @@ export default function ComprarPage() {
     }
   };
 
-  const ticketPrice = parseFloat(process.env.NEXT_PUBLIC_TICKET_PRICE || '100');
+  const ticketPrice = parseFloat(process.env.NEXT_PUBLIC_TICKET_PRICE || '50');
   const total = selectedTickets.length * ticketPrice;
 
   if (status === 'loading') {
@@ -119,7 +120,8 @@ export default function ComprarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-red-900 via-red-800 to-red-900">
+      <SnowEffect />
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8">

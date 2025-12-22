@@ -54,16 +54,44 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #7f1d1d;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #dc2626;
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #991b1b;
+}
+
+/* Animación navideña para emojis */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce 2s ease-in-out infinite;
+}
+
+/* Brillo de nieve */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.sparkle {
+  animation: sparkle 1.5s ease-in-out infinite;
 }
 
 

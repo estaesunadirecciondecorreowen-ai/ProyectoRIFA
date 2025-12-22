@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import Navbar from '@/components/Navbar';
+import SnowEffect from '@/components/SnowEffect';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,24 +42,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-red-900 via-red-800 to-red-900">
+      <SnowEffect />
       <Navbar />
 
       <div className="max-w-md mx-auto px-4 py-12">
         <div className="bg-white rounded-xl shadow-2xl p-8">
-          <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-            Iniciar Sesión
-          </h1>
+          <div className="text-center mb-6">
+            <div className="text-5xl mb-3">🎄</div>
+            <h1 className="text-3xl font-bold text-black">
+              Iniciar Sesión
+            </h1>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-black mb-2">
                 Correo electrónico
               </label>
               <input
                 type="email"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="tu@email.com"
@@ -66,43 +71,34 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-black mb-2">
                 Contraseña
               </label>
               <input
                 type="password"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder="••••••••"
               />
             </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <Link
-                href="/auth/forgot-password"
-                className="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
-
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-3 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <p className="text-black">
               ¿No tienes cuenta?{' '}
               <Link
                 href="/auth/register"
-                className="text-primary-600 hover:text-primary-700 font-bold"
+                className="text-red-600 hover:text-red-700 font-bold"
               >
                 Regístrate aquí
               </Link>
