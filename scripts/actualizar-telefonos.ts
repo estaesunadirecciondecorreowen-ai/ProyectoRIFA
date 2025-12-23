@@ -3,20 +3,12 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('📞 Actualizando usuarios sin teléfono...\n');
+  console.log('📞 Verificando usuarios...\n');
 
-  // Actualizar usuarios que no tienen teléfono
-  const result = await prisma.user.updateMany({
-    where: {
-      telefono: null
-    },
-    data: {
-      telefono: '0000000000' // Teléfono por defecto
-    }
-  });
-
-  console.log(`✅ ${result.count} usuario(s) actualizado(s) con teléfono por defecto\n`);
-  console.log('Ahora puedes ejecutar: npx prisma db push\n');
+  // Como el campo telefono ahora es obligatorio, este script ya no es necesario
+  // Todos los usuarios nuevos deben tener teléfono
+  console.log('✅ El campo teléfono es ahora obligatorio para todos los usuarios\n');
+  console.log('ℹ️  Este script ya no es necesario. Todos los usuarios nuevos tienen teléfono obligatorio.\n');
 }
 
 main()
