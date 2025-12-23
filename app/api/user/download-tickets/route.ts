@@ -73,10 +73,10 @@ export async function GET(request: Request) {
     }
 
     // Si todos los tickets tienen el mismo pdf_filename, es un ZIP que ya existe
-    const pdfFilenames = [...new Set(purchase.tickets.map(t => t.pdf_filename).filter(Boolean))];
+    const pdfFilenames = Array.from(new Set(purchase.tickets.map((t: any) => t.pdf_filename).filter(Boolean)));
     
     console.log('PDFs encontrados:', pdfFilenames);
-    console.log('Tickets con PDF:', purchase.tickets.map(t => ({ numero: t.numero, pdf_generado: t.pdf_generado, pdf_filename: t.pdf_filename })));
+    console.log('Tickets con PDF:', purchase.tickets.map((t: any) => ({ numero: t.numero, pdf_generado: t.pdf_generado, pdf_filename: t.pdf_filename })));
     
     if (pdfFilenames.length === 0) {
       return NextResponse.json(
