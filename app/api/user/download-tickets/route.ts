@@ -4,8 +4,7 @@ import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { readFile } from 'fs/promises';
 import path from 'path';
-import archiver from 'archiver';
-import { Readable } from 'stream';
+import { existsSync } from 'fs';
 
 export async function GET(request: Request) {
   try {
@@ -90,12 +89,22 @@ export async function GET(request: Request) {
       // Descargar el ZIP existente
       const zipPath = path.join(process.cwd(), 'tickets_pdf', pdfFilenames[0]);
       
-      console.log('Intentando leer ZIP de:', zipPath);
+      console.log('📂 Directorio de trabajo:', process.cwd());
+      console.log('📁 Buscando ZIP en:', zipPath);
+      console.log('✅ Archivo existe:', existsSync(zipPath));
+      
+      if (!existsSync(zipPath)) {
+        console.error('❌ Archivo no encontrado en el sistema de archivos');
+        return NextResponse.json(
+          { error: `El archivo ${pdfFilenames[0]} no se encuentra en el servidor. Contacta al administrador para regenerar los PDFs.` },
+          { status: 404 }
+        );
+      }
       
       try {
         const fileBuffer = await readFile(zipPath);
         
-        console.log('ZIP leído exitosamente, tamaño:', fileBuffer.length);
+        console.log('✅ ZIP leído exitosamente, tamaño:', fileBuffer.length, 'bytes');
         
         return new NextResponse(fileBuffer, {
           headers: {
@@ -105,9 +114,9 @@ export async function GET(request: Request) {
           },
         });
       } catch (error) {
-        console.error('Error leyendo archivo ZIP:', error);
+        console.error('❌ Error leyendo archivo ZIP:', error);
         return NextResponse.json(
-          { error: `Archivo no encontrado: ${pdfFilenames[0]}. Contacta al administrador para regenerar los PDFs.` },
+          { error: `Error al leer el archivo: ${error instanceof Error ? error.message : 'Error desconocido'}` },
           { status: 500 }
         );
       }

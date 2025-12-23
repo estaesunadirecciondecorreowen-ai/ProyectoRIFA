@@ -12,12 +12,14 @@ interface Ticket {
 interface TicketGridProps {
   selectable?: boolean;
   onSelect?: (ticketNumber: number) => void;
+  onDoubleClick?: (ticketNumber: number) => void;
   selectedTickets?: number[];
 }
 
 export default function TicketGrid({
   selectable = false,
   onSelect,
+  onDoubleClick,
   selectedTickets = [],
 }: TicketGridProps) {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -48,6 +50,13 @@ export default function TicketGrid({
     if (!selectable || ticket.estado !== 'available') return;
     if (onSelect) {
       onSelect(ticket.numero);
+    }
+  };
+
+  const handleTicketDoubleClick = (ticket: Ticket) => {
+    if (!selectable || ticket.estado !== 'available') return;
+    if (onDoubleClick) {
+      onDoubleClick(ticket.numero);
     }
   };
 
@@ -179,6 +188,7 @@ export default function TicketGrid({
                 <button
                   key={ticket.id}
                   onClick={() => handleTicketClick(ticket)}
+                  onDoubleClick={() => handleTicketDoubleClick(ticket)}
                   disabled={!isClickable && !isSelected}
                   className={`
                     relative w-10 h-10 rounded font-bold text-xs
@@ -189,7 +199,7 @@ export default function TicketGrid({
                     flex items-center justify-center
                     text-white
                   `}
-                  title={`Boleto #${ticket.numero} - ${getTicketStatusText(ticket.estado)}`}
+                  title={`Boleto #${ticket.numero} - ${getTicketStatusText(ticket.estado)} (Doble clic para ir al formulario)`}
                 >
                   {ticket.numero}
                   {isSelected && (

@@ -241,31 +241,6 @@ export default function DashboardPage() {
                       </div>
                     )}
 
-                    {/* Botón de descarga de PDFs */}
-                    {purchase.status === 'approved' && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        {purchase.tickets.some((t: any) => t.pdf_generado) ? (
-                          <>
-                            <a
-                              href={`/api/user/download-tickets?purchaseId=${purchase.id}`}
-                              download
-                              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 shadow-lg"
-                            >
-                              📥 Descargar mis Boletos en PDF
-                            </a>
-                            <p className="text-sm text-green-600 font-medium mt-2">
-                              ✅ Tus boletos están listos para descargar
-                            </p>
-                          </>
-                        ) : (
-                          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <p className="text-sm text-yellow-800 font-medium">
-                              ⏳ Tus boletos están siendo procesados. Los PDFs estarán disponibles pronto.
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
                 );
               })}

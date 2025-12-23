@@ -16,6 +16,7 @@ export default function PhysicalSalesPage() {
   const [formData, setFormData] = useState({
     buyerName: '',
     buyerEmail: '',
+    sellerName: '',
     notes: '',
   });
 
@@ -38,6 +39,26 @@ export default function PhysicalSalesPage() {
         return [...prev, ticketNumber];
       }
     });
+  };
+
+  const handleTicketDoubleClick = (ticketNumber: number) => {
+    // Si el boleto ya está seleccionado, ir al formulario
+    if (selectedTickets.includes(ticketNumber)) {
+      // Scroll al formulario
+      const formElement = document.getElementById('sales-form');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      // Si no está seleccionado, seleccionarlo y luego ir al formulario
+      setSelectedTickets((prev) => [...prev, ticketNumber]);
+      setTimeout(() => {
+        const formElement = document.getElementById('sales-form');
+        if (formElement) {
+          formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,6 +84,7 @@ export default function PhysicalSalesPage() {
           ticketNumbers: selectedTickets,
           buyerName: formData.buyerName,
           buyerEmail: formData.buyerEmail || undefined,
+          sellerName: formData.sellerName || undefined,
           notes: formData.notes || undefined,
         }),
       });
@@ -78,6 +100,7 @@ export default function PhysicalSalesPage() {
       setFormData({
         buyerName: '',
         buyerEmail: '',
+        sellerName: '',
         notes: '',
       });
 
@@ -125,8 +148,8 @@ export default function PhysicalSalesPage() {
         </div>
 
         {selectedTickets.length > 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-6">Datos de la Venta</h2>
+          <div id="sales-form" className="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 className="text-2xl font-bold mb-6 text-blue-700">Datos de la Venta</h2>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <p className="text-blue-800 font-medium mb-2">
@@ -145,7 +168,7 @@ export default function PhysicalSalesPage() {
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-blue-700 font-medium"
                   value={formData.buyerName}
                   onChange={(e) => setFormData({ ...formData, buyerName: e.target.value })}
                   placeholder="Juan Pérez"
@@ -158,7 +181,7 @@ export default function PhysicalSalesPage() {
                 </label>
                 <input
                   type="email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-blue-700 font-medium"
                   value={formData.buyerEmail}
                   onChange={(e) => setFormData({ ...formData, buyerEmail: e.target.value })}
                   placeholder="comprador@email.com"
@@ -170,14 +193,27 @@ export default function PhysicalSalesPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre del vendedor (opcional)
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-blue-700 font-medium"
+                  value={formData.sellerName}
+                  onChange={(e) => setFormData({ ...formData, sellerName: e.target.value })}
+                  placeholder="María González"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Notas adicionales (opcional)
                 </label>
                 <textarea
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-blue-700 font-medium"
                   rows={3}
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Ej: Venta en efectivo, evento del 15 de enero"
+                  placeholder="Ej: Venta en efectivo"
                 />
               </div>
 
@@ -203,6 +239,7 @@ export default function PhysicalSalesPage() {
           <TicketGrid
             selectable={true}
             onSelect={handleTicketSelect}
+            onDoubleClick={handleTicketDoubleClick}
             selectedTickets={selectedTickets}
           />
         </div>

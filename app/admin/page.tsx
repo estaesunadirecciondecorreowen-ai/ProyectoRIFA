@@ -16,8 +16,6 @@ export default function AdminPage() {
   const [ticketNumber, setTicketNumber] = useState('');
   const [ticketInfo, setTicketInfo] = useState<any>(null);
   const [releaseLoading, setReleaseLoading] = useState(false);
-  const [pdfTickets, setPdfTickets] = useState('');
-  const [pdfLoading, setPdfLoading] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -93,45 +91,6 @@ export default function AdminPage() {
       toast.error(error.message);
     } finally {
       setReleaseLoading(false);
-    }
-  };
-
-  const generatePDFs = async () => {
-    const numbers = pdfTickets
-      .split(',')
-      .map((n) => parseInt(n.trim()))
-      .filter((n) => !isNaN(n) && n >= 1 && n <= 500);
-
-    if (numbers.length === 0) {
-      toast.error('Ingresa números de boletos válidos separados por comas (ej: 1,2,3)');
-      return;
-    }
-
-    setPdfLoading(true);
-    try {
-      const response = await fetch('/api/admin/generate-pdfs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          boletos: numbers,
-          template: 'negro',
-          associate: true,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error);
-      }
-
-      toast.success(data.message);
-      setPdfTickets('');
-      fetchStats(); // Actualizar estadísticas
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setPdfLoading(false);
     }
   };
 
@@ -251,43 +210,6 @@ export default function AdminPage() {
                 )}
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Generar PDFs */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h3 className="text-xl font-bold mb-4 text-gray-800">📄 Generar PDFs de Boletos</h3>
-          <p className="text-gray-600 mb-4 text-sm">
-            Genera PDFs para boletos vendidos. Separa los números con comas (ej: 1,2,5,10)
-          </p>
-          
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <input
-                type="text"
-                value={pdfTickets}
-                onChange={(e) => setPdfTickets(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && generatePDFs()}
-                placeholder="Ejemplo: 1,2,5,10,25"
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-blue-700 font-medium placeholder:text-gray-400"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Los boletos deben estar vendidos para poder generar sus PDFs
-              </p>
-            </div>
-            <button
-              onClick={generatePDFs}
-              disabled={pdfLoading}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-bold hover:from-purple-700 hover:to-purple-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-105 shadow-lg whitespace-nowrap"
-            >
-              {pdfLoading ? '⏳ Generando...' : '📄 Generar PDFs'}
-            </button>
-          </div>
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>ℹ️ Nota:</strong> Los PDFs se generarán con plantilla negra, 4 boletos por hoja. 
-              Los archivos se guardarán automáticamente y estarán disponibles para descarga de los usuarios.
-            </p>
           </div>
         </div>
 

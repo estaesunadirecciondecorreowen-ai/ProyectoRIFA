@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { ticketNumbers, buyerName, buyerEmail, notes } = await request.json();
+    const { ticketNumbers, buyerName, buyerEmail, sellerName, notes } = await request.json();
 
     if (!ticketNumbers || !Array.isArray(ticketNumbers) || ticketNumbers.length === 0) {
       return NextResponse.json(
@@ -68,6 +68,7 @@ export async function POST(request: Request) {
           data: {
             nombre: buyerName,
             email: buyerEmail,
+            telefono: '0000000000', // Teléfono por defecto para usuario físico
             password_hash: '', // Usuario físico sin acceso al sistema
             email_verified: false,
           },
@@ -93,6 +94,12 @@ export async function POST(request: Request) {
     });
 
     // Marcar boletos como vendidos
+    const notaParts = [];
+    if (buyerName) notaParts.push(`Comprador: ${buyerName}`);
+    if (sellerName) notaParts.push(`Vendedor: ${sellerName}`);
+    if (notes) notaParts.push(notes);
+    const notaFinal = notaParts.length > 0 ? notaParts.join(' | ') : 'Venta física';
+
     await prisma.ticket.updateMany({
       where: {
         numero: { in: ticketNumbers },
@@ -101,7 +108,7 @@ export async function POST(request: Request) {
         estado: 'sold_physical',
         user_id: userId,
         purchase_id: purchase.id,
-        nota: notes ? `${buyerName || 'Venta física'} - ${notes}` : buyerName || 'Venta física',
+        nota: notaFinal,
       },
     });
 
@@ -115,6 +122,8 @@ export async function POST(request: Request) {
           tickets: ticketNumbers,
           buyerName,
           buyerEmail,
+          sellerName,
+          notes,
         }),
       },
     });
