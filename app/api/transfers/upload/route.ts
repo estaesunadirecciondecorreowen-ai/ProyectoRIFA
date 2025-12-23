@@ -20,13 +20,16 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
     const purchaseId = formData.get('purchaseId') as string;
+    const nombreComprador = formData.get('nombreComprador') as string;
+    const telefonoComprador = formData.get('telefonoComprador') as string;
+    const nombreVendedor = formData.get('nombreVendedor') as string;
     const folio = formData.get('folio') as string;
     const monto = parseFloat(formData.get('monto') as string);
     const fecha = formData.get('fecha') as string;
     const comprobante = formData.get('comprobante') as File;
 
     // Validaciones
-    if (!purchaseId || !folio || !monto || !fecha || !comprobante) {
+    if (!purchaseId || !folio || !monto || !fecha || !comprobante || !nombreComprador || !telefonoComprador || !nombreVendedor) {
       return NextResponse.json(
         { error: 'Todos los campos son requeridos' },
         { status: 400 }
@@ -116,7 +119,13 @@ export async function POST(request: Request) {
 
     await writeFile(filePath, buffer);
 
-    // Crear transferencia
+    // Crear transferencia con datos adicionales en admin_notes
+    const datosAdicionales = JSON.stringify({
+      nombreComprador,
+      telefonoComprador,
+      nombreVendedor,
+    });
+
     await prisma.transfer.create({
       data: {
         purchase_id: purchaseId,
@@ -126,6 +135,7 @@ export async function POST(request: Request) {
         comprobante_url: fileUrl,
         comprobante_hash: fileHash,
         status: 'pending_review',
+        admin_notes: datosAdicionales,
       },
     });
 

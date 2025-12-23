@@ -16,6 +16,9 @@ export default function ComprarPage() {
   const [showUpload, setShowUpload] = useState(false);
   const [purchaseData, setPurchaseData] = useState<any>(null);
   const [transferData, setTransferData] = useState({
+    nombreComprador: '',
+    telefonoComprador: '',
+    nombreVendedor: '',
     folio: '',
     monto: '',
     fecha: '',
@@ -70,6 +73,15 @@ export default function ComprarPage() {
     }
   };
 
+  const copyToClipboard = async (text: string, type: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${type === 'cuenta' ? 'Cuenta' : type === 'clabe' ? 'CLABE' : 'Titular'} copiado al portapapeles`);
+    } catch (err) {
+      toast.error('No se pudo copiar al portapapeles');
+    }
+  };
+
   const handleUploadTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -83,6 +95,9 @@ export default function ComprarPage() {
     try {
       const formData = new FormData();
       formData.append('purchaseId', purchaseData.purchaseId);
+      formData.append('nombreComprador', transferData.nombreComprador);
+      formData.append('telefonoComprador', transferData.telefonoComprador);
+      formData.append('nombreVendedor', transferData.nombreVendedor);
       formData.append('folio', transferData.folio);
       formData.append('monto', transferData.monto);
       formData.append('fecha', transferData.fecha);
@@ -185,78 +200,156 @@ export default function ComprarPage() {
               </p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <h3 className="font-bold text-lg mb-3">Paso 2: Realiza tu transferencia</h3>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+              <h3 className="font-bold text-lg mb-3 text-blue-900">💰 Información de Pago</h3>
               <div className="space-y-2 text-gray-700">
-                <p><strong>Banco:</strong> BBVA</p>
-                <p><strong>Cuenta:</strong> 1234 5678 9012 3456</p>
-                <p><strong>CLABE:</strong> 012345678901234567</p>
-                <p><strong>Titular:</strong> Rifa Altruista</p>
-                <p className="text-xl font-bold text-primary-600 mt-4">
-                  Monto a pagar: ${total.toLocaleString('es-MX')} MXN
-                </p>
-                <p className="text-sm text-gray-600 mt-2">
-                  <strong>Importante:</strong> En el concepto de pago, coloca tu código:{' '}
-                  <span className="font-mono bg-white px-2 py-1 rounded">{purchaseData.uniqueCode}</span>
+                <p><strong>Banco:</strong> BBVA Bancomer</p>
+                
+                <div className="flex items-center gap-2 flex-wrap">
+                  <strong>Cuenta:</strong>
+                  <span id="cuenta-valor">1517353084</span>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard('1517353084', 'cuenta')}
+                    className="px-2 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
+                    title="Copiar cuenta"
+                  >
+                    📋
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <strong>CLABE:</strong>
+                  <span id="clabe-valor">012180015173530847</span>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard('012180015173530847', 'clabe')}
+                    className="px-2 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
+                    title="Copiar CLABE"
+                  >
+                    📋
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <strong>Titular:</strong>
+                  <span id="titular-valor">Alfaro Alvarez Oscar Humberto</span>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard('Alfaro Alvarez Oscar Humberto', 'titular')}
+                    className="px-2 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
+                    title="Copiar titular"
+                  >
+                    📋
+                  </button>
+                </div>
+
+                <p><strong>Concepto:</strong> Pon tu N° de boleto y tu Nombre</p>
+
+                <p className="text-xl font-bold text-red-600 mt-4">
+                  Monto a transferir: ${total.toLocaleString('es-MX')} MXN
                 </p>
               </div>
             </div>
 
-            <form onSubmit={handleUploadTransfer} className="space-y-4">
-              <h3 className="font-bold text-lg">Paso 3: Sube tu comprobante</h3>
+            <form onSubmit={handleUploadTransfer} className="space-y-4 max-w-xl mx-auto">
+              <h3 className="font-bold text-lg text-center mb-4 text-black">Paso 3: Sube tu comprobante</h3>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Folio / Referencia de transferencia *
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <label className="sm:w-48 text-sm font-medium text-gray-700 text-center sm:text-left">
+                  👤 Nombre del Comprador *
                 </label>
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-center bg-gray-50 text-black"
+                  value={transferData.nombreComprador}
+                  onChange={(e) => setTransferData({ ...transferData, nombreComprador: e.target.value })}
+                  placeholder="Nombre completo"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <label className="sm:w-48 text-sm font-medium text-gray-700 text-center sm:text-left">
+                  📱 Teléfono del Comprador *
+                </label>
+                <input
+                  type="tel"
+                  required
+                  minLength={10}
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-center bg-gray-50 text-black"
+                  value={transferData.telefonoComprador}
+                  onChange={(e) => setTransferData({ ...transferData, telefonoComprador: e.target.value })}
+                  placeholder="Ej: 5551234567"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <label className="sm:w-48 text-sm font-medium text-gray-700 text-center sm:text-left">
+                  🤝 Nombre del Vendedor *
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-center bg-gray-50 text-black"
+                  value={transferData.nombreVendedor}
+                  onChange={(e) => setTransferData({ ...transferData, nombreVendedor: e.target.value })}
+                  placeholder="¿Quién te vendió?"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <label className="sm:w-48 text-sm font-medium text-gray-700 text-center sm:text-left">
+                  🔢 Folio de Transferencia *
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-center bg-gray-50 text-black"
                   value={transferData.folio}
                   onChange={(e) => setTransferData({ ...transferData, folio: e.target.value })}
                   placeholder="Ej: 123456789"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Monto transferido *
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <label className="sm:w-48 text-sm font-medium text-gray-700 text-center sm:text-left">
+                  💵 Monto Transferido *
                 </label>
                 <input
                   type="number"
                   required
                   step="0.01"
                   min={total}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-center bg-gray-50 text-black"
                   value={transferData.monto}
                   onChange={(e) => setTransferData({ ...transferData, monto: e.target.value })}
-                  placeholder={total.toString()}
+                  placeholder="$0.00"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Fecha de transferencia *
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <label className="sm:w-48 text-sm font-medium text-gray-700 text-center sm:text-left">
+                  📅 Fecha de Transferencia *
                 </label>
                 <input
-                  type="datetime-local"
+                  type="date"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-center bg-gray-50 text-black"
                   value={transferData.fecha}
                   onChange={(e) => setTransferData({ ...transferData, fecha: e.target.value })}
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Comprobante de pago (imagen o PDF) *
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <label className="sm:w-48 text-sm font-medium text-gray-700 text-center sm:text-left">
+                  📎 Comprobante *
                 </label>
                 <input
                   type="file"
                   required
                   accept="image/*,.pdf"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50 text-black text-sm"
                   onChange={(e) => setTransferData({ ...transferData, comprobante: e.target.files?.[0] || null })}
                 />
               </div>
@@ -264,9 +357,9 @@ export default function ComprarPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-full py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors mt-6"
               >
-                {loading ? 'Enviando...' : 'Enviar Comprobante'}
+                {loading ? 'Enviando...' : '✅ Enviar Comprobante'}
               </button>
             </form>
           </div>
