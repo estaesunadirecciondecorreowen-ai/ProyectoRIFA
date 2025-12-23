@@ -101,7 +101,7 @@ export async function POST(request: Request) {
     
     // Convertir a array si es necesario
     if (typeof files === 'string') {
-      files = files.split(',').map(f => f.trim()).filter(f => f);
+      files = files.split(',').map((f: string) => f.trim()).filter((f: string) => f);
       console.log('📋 Archivos después de split:', files);
     }
     if (!Array.isArray(files)) {
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
     }
     
     // Filtrar archivos vacíos o inválidos
-    files = files.filter(f => f && typeof f === 'string' && f.trim().length > 0);
+    files = files.filter((f: any) => f && typeof f === 'string' && f.trim().length > 0);
     console.log('📋 Archivos válidos finales:', files);
 
     if (files.length === 0) {
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
     }
 
     // IMPORTANTE: No intentar descargar si los archivos no tienen la extensión correcta
-    const invalidFiles = files.filter(f => !f.endsWith('.pdf'));
+    const invalidFiles = files.filter((f: any) => !f.endsWith('.pdf'));
     if (invalidFiles.length > 0) {
       console.warn('⚠️ Archivos sin extensión .pdf:', invalidFiles);
     }
