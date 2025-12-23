@@ -10,7 +10,8 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "cargar-ventas": "tsx scripts/cargar-ventas-fisicas-v2.ts",
-    "limpiar-ventas": "tsx scripts/limpiar-compras.ts"
+    "limpiar-ventas": "tsx scripts/limpiar-compras.ts",
+    "crear-admin": "tsx scripts/crear-admin-seguro.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

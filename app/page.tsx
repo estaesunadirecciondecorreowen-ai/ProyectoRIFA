@@ -85,7 +85,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-6 mt-8">
             <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
               <div className="text-4xl mb-4">💚</div>
-              <h3 className="text-xl font-bold mb-2">Apoyas una causa</h3>
+              <h3 className="text-xl font-bold mb-2 text-blue-800">Apoyas una causa</h3>
               <p className="text-gray-600">
                 100% de las ganancias van directamente a {raffleCause}
               </p>
@@ -93,7 +93,7 @@ export default function Home() {
 
             <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
               <div className="text-4xl mb-4">🎯</div>
-              <h3 className="text-xl font-bold mb-2">Fácil de participar</h3>
+              <h3 className="text-xl font-bold mb-2 text-blue-800">Fácil de participar</h3>
               <p className="text-gray-600">
                 Elige tus boletos, realiza tu pago y listo
               </p>
@@ -101,7 +101,7 @@ export default function Home() {
 
             <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
               <div className="text-4xl mb-4">✨</div>
-              <h3 className="text-xl font-bold mb-2">Sorteo transparente</h3>
+              <h3 className="text-xl font-bold mb-2 text-blue-800">Sorteo transparente</h3>
               <p className="text-gray-600">
                 Sorteo público y verificable
               </p>
