@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { generateUniqueCode } from '@/lib/utils';
+import { TicketStatus, PurchaseStatus } from '@prisma/client';
 
 const RESERVATION_TIME_MINUTES = 20;
 
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
     });
 
     const unavailableTickets = tickets.filter(
-      (t) => t.estado !== 'available'
+      (t) => t.estado !== TicketStatus.available
     );
 
     if (unavailableTickets.length > 0) {
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
       data: {
         user_id: userId,
         total,
-        status: 'pending',
+        status: PurchaseStatus.pending,
         method: 'transferencia',
         unique_code: uniqueCode,
       },
@@ -77,10 +78,10 @@ export async function POST(request: Request) {
     await prisma.ticket.updateMany({
       where: {
         numero: { in: ticketNumbers },
-        estado: 'available',
+        estado: TicketStatus.available,
       },
       data: {
-        estado: 'reserved_pending_payment',
+        estado: TicketStatus.reserved_pending_payment,
         user_id: userId,
         purchase_id: purchase.id,
         reserved_until: reservedUntil,

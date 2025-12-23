@@ -65,14 +65,15 @@ export function validateAmount(amount: number, expected: number): boolean {
  */
 export async function cleanExpiredReservations() {
   const now = new Date();
+  const { TicketStatus } = await import('@prisma/client');
 
   await prisma.ticket.updateMany({
     where: {
-      estado: "reserved_pending_payment",
+      estado: TicketStatus.reserved_pending_payment,
       reserved_until: { lt: now },
     },
     data: {
-      estado: "available",
+      estado: TicketStatus.available,
       user_id: null,
       purchase_id: null,
       reserved_until: null,

@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
+import { TicketStatus, UserRole } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,11 +23,11 @@ export async function POST(request: Request) {
     }
 
     // Crear los 500 boletos
-    const tickets = [];
+    const tickets: { numero: number; estado: TicketStatus }[] = [];
     for (let i = 1; i <= 500; i++) {
       tickets.push({
         numero: i,
-        estado: 'available',
+        estado: TicketStatus.available,
       });
     }
 
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
         telefono: '0000000000',
         password_hash: adminPassword,
         email_verified: true,
-        rol: 'ADMIN',
+        rol: UserRole.ADMIN,
       },
     });
 

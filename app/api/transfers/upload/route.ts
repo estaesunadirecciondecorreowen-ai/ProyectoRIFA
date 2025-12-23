@@ -6,6 +6,7 @@ import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { hashFile, validateFolio, validateAmount } from '@/lib/utils';
 import { sendEmail, getTransferReceivedEmailHtml } from '@/lib/email';
+import { TicketStatus, TransferStatus } from '@prisma/client';
 
 export async function POST(request: Request) {
   try {
@@ -147,13 +148,13 @@ export async function POST(request: Request) {
         fecha: new Date(fecha),
         comprobante_url: fileUrl,
         comprobante_hash: fileHash,
-        status: 'pending_review',
+        status: TransferStatus.pending_review,
       },
     });
 
     await prisma.ticket.updateMany({
       where: { purchase_id: purchaseId },
-      data: { estado: 'pending_review' },
+      data: { estado: TicketStatus.pending_review },
     });
 
     // Enviar email (no bloquear si falla)

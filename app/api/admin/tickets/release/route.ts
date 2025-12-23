@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
+import { TicketStatus, PurchaseStatus } from '@prisma/client';
 
 export async function POST(request: Request) {
   try {
@@ -47,14 +48,14 @@ export async function POST(request: Request) {
     }
 
     // Verificar que el boleto pueda ser liberado
-    if (ticket.estado === 'available') {
+    if (ticket.estado === TicketStatus.available) {
       return NextResponse.json(
         { error: 'El boleto ya está disponible' },
         { status: 400 }
       );
     }
 
-    if (ticket.estado === 'sold' || ticket.estado === 'sold_physical') {
+    if (ticket.estado === TicketStatus.sold || ticket.estado === TicketStatus.sold_physical) {
       return NextResponse.json(
         { error: 'No se puede liberar un boleto ya vendido' },
         { status: 400 }
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
     await prisma.ticket.update({
       where: { numero: ticketNumber },
       data: {
-        estado: 'available',
+        estado: TicketStatus.available,
         user_id: null,
         purchase_id: null,
         reserved_until: null,
@@ -85,7 +86,7 @@ export async function POST(request: Request) {
       if (remainingTickets.length === 0) {
         await prisma.purchase.update({
           where: { id: ticket.purchase_id },
-          data: { status: 'cancelled' },
+          data: { status: PurchaseStatus.cancelled },
         });
       }
     }
@@ -94,7 +95,7 @@ export async function POST(request: Request) {
       message: `Boleto #${ticketNumber} liberado exitosamente`,
       ticket: {
         numero: ticket.numero,
-        estado: 'available',
+        estado: TicketStatus.available,
       },
     });
   } catch (error) {

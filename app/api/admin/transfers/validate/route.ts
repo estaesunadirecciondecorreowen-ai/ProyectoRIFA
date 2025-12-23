@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { sendEmail, getTicketConfirmationEmailHtml, getTransferRejectedEmailHtml } from '@/lib/email';
+import { TicketStatus, PurchaseStatus, TransferStatus } from '@prisma/client';
 
 export async function POST(request: Request) {
   try {
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (transfer.status !== 'pending_review') {
+    if (transfer.status !== TransferStatus.pending_review) {
       return NextResponse.json(
         { error: 'Esta transferencia ya fue procesada' },
         { status: 400 }
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
         await tx.transfer.update({
           where: { id: transferId },
           data: {
-            status: 'approved',
+            status: TransferStatus.approved,
             admin_notes: notes,
           },
         });
@@ -74,13 +75,13 @@ export async function POST(request: Request) {
         // Actualizar compra
         await tx.purchase.update({
           where: { id: transfer.purchase_id },
-          data: { status: 'approved' },
+          data: { status: PurchaseStatus.approved },
         });
 
         // Actualizar boletos
         await tx.ticket.updateMany({
           where: { purchase_id: transfer.purchase_id },
-          data: { estado: 'sold' },
+          data: { estado: TicketStatus.sold },
         });
 
         // Registrar log
@@ -119,7 +120,7 @@ export async function POST(request: Request) {
         await tx.transfer.update({
           where: { id: transferId },
           data: {
-            status: 'rejected',
+            status: TransferStatus.rejected,
             admin_notes: notes,
           },
         });
@@ -127,14 +128,14 @@ export async function POST(request: Request) {
         // Actualizar compra
         await tx.purchase.update({
           where: { id: transfer.purchase_id },
-          data: { status: 'rejected' },
+          data: { status: PurchaseStatus.rejected },
         });
 
         // Liberar boletos
         await tx.ticket.updateMany({
           where: { purchase_id: transfer.purchase_id },
           data: {
-            estado: 'available',
+            estado: TicketStatus.available,
             user_id: null,
             purchase_id: null,
             reserved_until: null,

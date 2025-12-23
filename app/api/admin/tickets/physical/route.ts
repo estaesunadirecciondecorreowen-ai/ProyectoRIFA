@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { generateUniqueCode } from '@/lib/utils';
+import { TicketStatus, PurchaseStatus } from '@prisma/client';
 
 export async function POST(request: Request) {
   try {
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
       },
     });
 
-    const unavailableTickets = tickets.filter((t) => t.estado !== 'available');
+    const unavailableTickets = tickets.filter((t) => t.estado !== TicketStatus.available);
 
     if (unavailableTickets.length > 0) {
       return NextResponse.json(
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
       data: {
         user_id: userId || adminId, // Si no hay usuario, asignar al admin
         total,
-        status: 'approved',
+        status: PurchaseStatus.approved,
         method: 'fisico',
         unique_code: uniqueCode,
       },
@@ -105,7 +106,7 @@ export async function POST(request: Request) {
         numero: { in: ticketNumbers },
       },
       data: {
-        estado: 'sold_physical',
+        estado: TicketStatus.sold_physical,
         user_id: userId,
         purchase_id: purchase.id,
         nota: notaFinal,

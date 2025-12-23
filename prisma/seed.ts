@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserRole, TicketStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -20,7 +20,7 @@ async function main() {
         telefono: '0000000000',
         password_hash: adminPassword,
         email_verified: true,
-        rol: 'ADMIN',
+        rol: UserRole.ADMIN,
       },
     });
     console.log('✅ Usuario administrador creado:');
@@ -37,11 +37,11 @@ async function main() {
   if (ticketCount === 0) {
     console.log('🎫 Creando 500 boletos...');
 
-    const tickets = [];
+    const tickets: { numero: number; estado: TicketStatus }[] = [];
     for (let i = 1; i <= 500; i++) {
       tickets.push({
         numero: i,
-        estado: 'available' as const,
+        estado: TicketStatus.available,
       });
     }
 

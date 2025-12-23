@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
+import { PurchaseStatus, TransferStatus, UserRole } from '@prisma/client';
 
 export async function GET() {
   try {
@@ -23,7 +24,7 @@ export async function GET() {
     // Total de ingresos
     const approvedPurchases = await prisma.purchase.aggregate({
       where: {
-        status: 'approved',
+        status: PurchaseStatus.approved,
       },
       _sum: {
         total: true,
@@ -34,21 +35,21 @@ export async function GET() {
     // Transferencias pendientes
     const pendingTransfers = await prisma.transfer.count({
       where: {
-        status: 'pending_review',
+        status: TransferStatus.pending_review,
       },
     });
 
     // Usuarios registrados
     const totalUsers = await prisma.user.count({
       where: {
-        rol: 'USER',
+        rol: UserRole.USER,
       },
     });
 
     // Ventas recientes
     const recentSales = await prisma.purchase.findMany({
       where: {
-        status: 'approved',
+        status: PurchaseStatus.approved,
       },
       include: {
         user: true,

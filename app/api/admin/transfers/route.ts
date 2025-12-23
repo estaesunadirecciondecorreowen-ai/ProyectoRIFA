@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
+import { TransferStatus } from '@prisma/client';
 
 export async function GET() {
   try {
@@ -16,7 +17,7 @@ export async function GET() {
 
     const transfers = await prisma.transfer.findMany({
       where: {
-        status: 'pending_review',
+        status: TransferStatus.pending_review,
       },
       include: {
         purchase: {

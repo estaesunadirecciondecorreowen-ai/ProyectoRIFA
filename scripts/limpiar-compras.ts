@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, TicketStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -16,7 +16,7 @@ async function main() {
   // Resetear todos los boletos a disponible
   const updatedTickets = await prisma.ticket.updateMany({
     data: {
-      estado: 'available',
+      estado: TicketStatus.available,
       user_id: null,
       purchase_id: null,
       reserved_until: null,
