@@ -79,7 +79,7 @@ export default function Home() {
         <div className="bg-white rounded-xl shadow-2xl p-8 md:p-12">
           <div className="text-center mb-8">
             <h2 className="text-4xl font-bold text-gray-800 mb-4">🏆 El Gran Premio</h2>
-            <p className="text-3xl font-bold text-primary-600">{rafflePrize}</p>
+            <p className="text-3xl font-bold text-blue-900">Playstation 5</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mt-8">
@@ -197,10 +197,10 @@ export default function Home() {
       {/* Tickets Dashboard Section */}
       <section id="boletos" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+          <h2 className="text-4xl font-bold text-white mb-4">
             Dashboard de Boletos
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-white">
             Boletos disponibles en tiempo real
           </p>
         </div>
