@@ -25,12 +25,30 @@ export default function ComprarPage() {
     comprobante: null as File | null,
   });
 
+  // Autocompletar datos del usuario cuando inicia sesión
   useEffect(() => {
     if (status === 'unauthenticated') {
       toast.error('Debes iniciar sesión para comprar boletos');
       router.push('/auth/login');
+    } else if (status === 'authenticated' && session?.user) {
+      // Autocompletar nombre y teléfono del usuario
+      setTransferData(prev => ({
+        ...prev,
+        nombreComprador: (session.user as any).name || '',
+        telefonoComprador: (session.user as any).telefono || '',
+      }));
     }
-  }, [status, router]);
+  }, [status, session, router]);
+
+  // Autocompletar monto cuando se muestra el formulario de upload
+  useEffect(() => {
+    if (showUpload && purchaseData) {
+      setTransferData(prev => ({
+        ...prev,
+        monto: purchaseData.total.toString(),
+      }));
+    }
+  }, [showUpload, purchaseData]);
 
   const handleTicketSelect = (ticketNumber: number) => {
     setSelectedTickets((prev) => {
