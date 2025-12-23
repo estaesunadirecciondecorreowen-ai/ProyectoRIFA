@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { existsSync } from 'fs';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { hashFile, validateFolio, validateAmount } from '@/lib/utils';
@@ -124,6 +125,12 @@ export async function POST(request: Request) {
     }
 
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    
+    // Crear directorio si no existe
+    if (!existsSync(uploadsDir)) {
+      await mkdir(uploadsDir, { recursive: true });
+    }
+    
     const fileName = `${Date.now()}-${comprobante.name}`;
     const filePath = path.join(uploadsDir, fileName);
     const fileUrl = `/uploads/${fileName}`;
