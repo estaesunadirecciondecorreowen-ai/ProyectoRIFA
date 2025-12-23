@@ -191,6 +191,33 @@ export default function DashboardPage() {
                       </div>
                     </div>
 
+                    {/* Información del comprador y vendedor */}
+                    {(purchase.comprador_nombre || purchase.vendedor_nombre) && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <p className="text-sm text-gray-600 mb-2">Información de la compra:</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                          {purchase.comprador_nombre && (
+                            <div>
+                              <span className="text-gray-500">Comprador:</span>{' '}
+                              <span className="font-medium">{purchase.comprador_nombre}</span>
+                            </div>
+                          )}
+                          {purchase.telefono_comprador && (
+                            <div>
+                              <span className="text-gray-500">Teléfono:</span>{' '}
+                              <span className="font-medium">{purchase.telefono_comprador}</span>
+                            </div>
+                          )}
+                          {purchase.vendedor_nombre && (
+                            <div>
+                              <span className="text-gray-500">Vendedor:</span>{' '}
+                              <span className="font-medium">{purchase.vendedor_nombre}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     {purchase.transfer && (
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <p className="text-sm text-gray-600 mb-2">Información de transferencia:</p>
@@ -211,6 +238,19 @@ export default function DashboardPage() {
                             </p>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {/* Botón de descarga de PDFs */}
+                    {purchase.status === 'approved' && purchase.tickets.some((t: any) => t.pdf_generado) && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <a
+                          href={`/api/user/download-tickets?purchaseId=${purchase.id}`}
+                          download
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition-colors"
+                        >
+                          📥 Descargar mis Boletos en PDF
+                        </a>
                       </div>
                     )}
                   </div>

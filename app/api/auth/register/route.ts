@@ -7,9 +7,16 @@ export async function POST(request: Request) {
     const { nombre, email, telefono, password } = await request.json();
 
     // Validaciones básicas
-    if (!nombre || !email || !password) {
+    if (!nombre || !email || !telefono || !password) {
       return NextResponse.json(
         { error: 'Todos los campos requeridos deben ser completados' },
+        { status: 400 }
+      );
+    }
+
+    if (telefono.length < 10) {
+      return NextResponse.json(
+        { error: 'El teléfono debe tener al menos 10 dígitos' },
         { status: 400 }
       );
     }

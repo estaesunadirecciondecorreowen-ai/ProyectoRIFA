@@ -25,6 +25,13 @@ export async function GET() {
           orderBy: {
             numero: 'asc',
           },
+          select: {
+            id: true,
+            numero: true,
+            estado: true,
+            pdf_generado: true,
+            pdf_filename: true,
+          },
         },
         transfer: true,
       },

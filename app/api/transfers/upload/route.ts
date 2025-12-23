@@ -36,6 +36,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validar teléfono del comprador
+    if (telefonoComprador.length < 10) {
+      return NextResponse.json(
+        { error: 'El teléfono debe tener al menos 10 dígitos' },
+        { status: 400 }
+      );
+    }
+
     if (!validateFolio(folio)) {
       return NextResponse.json(
         { error: 'Folio inválido' },
@@ -119,13 +127,18 @@ export async function POST(request: Request) {
 
     await writeFile(filePath, buffer);
 
-    // Crear transferencia con datos adicionales en admin_notes
-    const datosAdicionales = JSON.stringify({
-      nombreComprador,
-      telefonoComprador,
-      nombreVendedor,
+    // Actualizar compra con datos del comprador y vendedor
+    await prisma.purchase.update({
+      where: { id: purchaseId },
+      data: { 
+        status: 'pending_review',
+        comprador_nombre: nombreComprador,
+        telefono_comprador: telefonoComprador,
+        vendedor_nombre: nombreVendedor,
+      },
     });
 
+    // Crear transferencia
     await prisma.transfer.create({
       data: {
         purchase_id: purchaseId,
@@ -135,14 +148,7 @@ export async function POST(request: Request) {
         comprobante_url: fileUrl,
         comprobante_hash: fileHash,
         status: 'pending_review',
-        admin_notes: datosAdicionales,
       },
-    });
-
-    // Actualizar compra y boletos
-    await prisma.purchase.update({
-      where: { id: purchaseId },
-      data: { status: 'pending_review' },
     });
 
     await prisma.ticket.updateMany({

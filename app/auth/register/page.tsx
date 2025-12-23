@@ -110,10 +110,11 @@ export default function RegisterPage() {
               <input
                 type="tel"
                 required
+                minLength={10}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                 value={formData.telefono}
                 onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                placeholder="555-123-4567"
+                placeholder="5551234567"
               />
             </div>
 
