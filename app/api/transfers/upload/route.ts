@@ -156,17 +156,22 @@ export async function POST(request: Request) {
       data: { estado: 'pending_review' },
     });
 
-    // Enviar email
-    const ticketNumbers = purchase.tickets.map((t) => t.numero);
-    await sendEmail({
-      to: purchase.user.email,
-      subject: 'Transferencia recibida - En proceso de validación',
-      html: getTransferReceivedEmailHtml(
-        purchase.user.nombre,
-        ticketNumbers,
-        purchase.unique_code
-      ),
-    });
+    // Enviar email (no bloquear si falla)
+    try {
+      const ticketNumbers = purchase.tickets.map((t) => t.numero);
+      await sendEmail({
+        to: purchase.user.email,
+        subject: 'Transferencia recibida - En proceso de validación',
+        html: getTransferReceivedEmailHtml(
+          purchase.user.nombre,
+          ticketNumbers,
+          purchase.unique_code
+        ),
+      });
+    } catch (emailError) {
+      console.error('Error al enviar email (no crítico):', emailError);
+      // Continuar aunque falle el email
+    }
 
     return NextResponse.json({
       message: 'Transferencia registrada exitosamente. Te notificaremos cuando sea validada.',
@@ -174,7 +179,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error al subir transferencia:', error);
     return NextResponse.json(
-      { error: 'Error al procesar transferencia' },
+      { error: error instanceof Error ? error.message : 'Error al procesar transferencia' },
       { status: 500 }
     );
   }
