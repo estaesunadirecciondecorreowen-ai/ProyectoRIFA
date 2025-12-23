@@ -153,19 +153,19 @@ export default function AdminPage() {
         {/* Usuarios y Alertas */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold mb-4">Información del Sistema</h3>
+            <h3 className="text-xl font-bold mb-4 text-gray-800">Información del Sistema</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                <span className="text-gray-600">Usuarios Registrados</span>
-                <span className="font-bold text-lg">{stats.totalUsers}</span>
+                <span className="text-gray-800 font-medium">Usuarios Registrados</span>
+                <span className="font-bold text-lg text-blue-600">{stats.totalUsers}</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                <span className="text-gray-600">Total de Boletos</span>
-                <span className="font-bold text-lg">500</span>
+                <span className="text-gray-800 font-medium">Total de Boletos</span>
+                <span className="font-bold text-lg text-blue-600">500</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                <span className="text-gray-600">Precio por Boleto</span>
-                <span className="font-bold text-lg">
+                <span className="text-gray-800 font-medium">Precio por Boleto</span>
+                <span className="font-bold text-lg text-blue-600">
                   {formatCurrency(parseFloat(process.env.NEXT_PUBLIC_TICKET_PRICE || '50'))}
                 </span>
               </div>
@@ -217,28 +217,28 @@ export default function AdminPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Código</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Usuario</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Boletos</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Total</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Método</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Fecha</th>
+                  <tr className="border-b-2 border-gray-300 bg-gray-50">
+                    <th className="text-left py-3 px-4 font-bold text-gray-800">Código</th>
+                    <th className="text-left py-3 px-4 font-bold text-gray-800">Usuario</th>
+                    <th className="text-left py-3 px-4 font-bold text-gray-800">Boletos</th>
+                    <th className="text-left py-3 px-4 font-bold text-gray-800">Total</th>
+                    <th className="text-left py-3 px-4 font-bold text-gray-800">Método</th>
+                    <th className="text-left py-3 px-4 font-bold text-gray-800">Fecha</th>
                   </tr>
                 </thead>
                 <tbody>
                   {stats.recentSales.map((sale: any) => (
                     <tr key={sale.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-mono text-sm">{sale.unique_code}</td>
-                      <td className="py-3 px-4">{sale.user.nombre}</td>
+                      <td className="py-3 px-4 font-mono text-sm font-bold text-blue-600">{sale.unique_code}</td>
+                      <td className="py-3 px-4 font-medium text-gray-800">{sale.user.nombre}</td>
                       <td className="py-3 px-4">
                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
                           {sale.tickets.length} boletos
                         </span>
                       </td>
-                      <td className="py-3 px-4 font-bold">{formatCurrency(sale.total)}</td>
-                      <td className="py-3 px-4 capitalize">{sale.method}</td>
-                      <td className="py-3 px-4 text-sm text-gray-600">
+                      <td className="py-3 px-4 font-bold text-green-600">{formatCurrency(sale.total)}</td>
+                      <td className="py-3 px-4 capitalize font-medium text-gray-800">{sale.method}</td>
+                      <td className="py-3 px-4 text-sm font-medium text-gray-700">
                         {formatDate(new Date(sale.updated_at))}
                       </td>
                     </tr>
