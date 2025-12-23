@@ -66,10 +66,10 @@ export default function AdminPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+          <h1 className="text-4xl font-bold text-white mb-2">
             Panel de Administración
           </h1>
-          <p className="text-gray-600">
+          <p className="text-white">
             Vista general del sistema
           </p>
         </div>
