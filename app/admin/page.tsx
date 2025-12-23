@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import Navbar from '@/components/Navbar';
 import SnowEffect from '@/components/SnowEffect';
 import { formatCurrency, formatDate } from '@/lib/utils';
@@ -12,6 +13,9 @@ export default function AdminPage() {
   const router = useRouter();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [ticketNumber, setTicketNumber] = useState('');
+  const [ticketInfo, setTicketInfo] = useState<any>(null);
+  const [releaseLoading, setReleaseLoading] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -35,6 +39,58 @@ export default function AdminPage() {
       console.error('Error cargando estadísticas:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const searchTicket = async () => {
+    const num = parseInt(ticketNumber);
+    if (!num || num < 1 || num > 500) {
+      toast.error('Ingresa un número de boleto válido (1-500)');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/tickets');
+      const data = await response.json();
+      const ticket = data.tickets.find((t: any) => t.numero === num);
+      
+      if (ticket) {
+        setTicketInfo(ticket);
+      } else {
+        toast.error('Boleto no encontrado');
+        setTicketInfo(null);
+      }
+    } catch (error) {
+      toast.error('Error al buscar boleto');
+      setTicketInfo(null);
+    }
+  };
+
+  const releaseTicket = async () => {
+    if (!ticketInfo) return;
+
+    setReleaseLoading(true);
+    try {
+      const response = await fetch('/api/admin/tickets/release', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketNumber: ticketInfo.numero }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error);
+      }
+
+      toast.success(data.message);
+      setTicketInfo(null);
+      setTicketNumber('');
+      fetchStats(); // Actualizar estadísticas
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setReleaseLoading(false);
     }
   };
 
@@ -93,6 +149,68 @@ export default function AdminPage() {
           >
             🏪 Ventas Físicas
           </button>
+        </div>
+
+        {/* Liberar Boletos */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <h3 className="text-xl font-bold mb-4 text-gray-800">🔓 Liberar Boleto Reservado</h3>
+          <p className="text-gray-600 mb-4 text-sm">
+            Busca y libera boletos que estén reservados o pendientes de pago
+          </p>
+          
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  min="1"
+                  max="500"
+                  value={ticketNumber}
+                  onChange={(e) => setTicketNumber(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && searchTicket()}
+                  placeholder="Número de boleto (1-500)"
+                  className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  onClick={searchTicket}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
+                >
+                  🔍 Buscar
+                </button>
+              </div>
+            </div>
+
+            {ticketInfo && (
+              <div className="flex-1 flex items-center gap-4 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+                <div className="flex-1">
+                  <p className="text-sm text-gray-600">Boleto #{ticketInfo.numero}</p>
+                  <p className="font-bold text-lg">
+                    Estado: <span className={`
+                      ${ticketInfo.estado === 'available' ? 'text-green-600' : ''}
+                      ${ticketInfo.estado === 'reserved_pending_payment' ? 'text-gray-600' : ''}
+                      ${ticketInfo.estado === 'pending_review' ? 'text-yellow-600' : ''}
+                      ${ticketInfo.estado === 'sold' || ticketInfo.estado === 'sold_physical' ? 'text-red-600' : ''}
+                    `}>
+                      {ticketInfo.estado === 'available' && '✅ Disponible'}
+                      {ticketInfo.estado === 'reserved_pending_payment' && '⏳ Reservado'}
+                      {ticketInfo.estado === 'pending_review' && '🔍 Pendiente'}
+                      {(ticketInfo.estado === 'sold' || ticketInfo.estado === 'sold_physical') && '🔒 Vendido'}
+                    </span>
+                  </p>
+                </div>
+                
+                {(ticketInfo.estado === 'reserved_pending_payment' || ticketInfo.estado === 'pending_review') && (
+                  <button
+                    onClick={releaseTicket}
+                    disabled={releaseLoading}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                  >
+                    {releaseLoading ? '⏳ Liberando...' : '🔓 Liberar Boleto'}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Estadísticas Principales */}
