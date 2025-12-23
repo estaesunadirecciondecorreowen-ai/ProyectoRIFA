@@ -76,23 +76,38 @@ export async function GET(request: Request) {
     // Si todos los tickets tienen el mismo pdf_filename, es un ZIP que ya existe
     const pdfFilenames = [...new Set(purchase.tickets.map(t => t.pdf_filename).filter(Boolean))];
     
+    console.log('PDFs encontrados:', pdfFilenames);
+    console.log('Tickets con PDF:', purchase.tickets.map(t => ({ numero: t.numero, pdf_generado: t.pdf_generado, pdf_filename: t.pdf_filename })));
+    
+    if (pdfFilenames.length === 0) {
+      return NextResponse.json(
+        { error: 'Los PDFs aún no han sido generados. Contacta al administrador.' },
+        { status: 404 }
+      );
+    }
+    
     if (pdfFilenames.length === 1 && pdfFilenames[0]) {
       // Descargar el ZIP existente
       const zipPath = path.join(process.cwd(), 'tickets_pdf', pdfFilenames[0]);
       
+      console.log('Intentando leer ZIP de:', zipPath);
+      
       try {
         const fileBuffer = await readFile(zipPath);
+        
+        console.log('ZIP leído exitosamente, tamaño:', fileBuffer.length);
         
         return new NextResponse(fileBuffer, {
           headers: {
             'Content-Type': 'application/zip',
             'Content-Disposition': `attachment; filename="mis_boletos_${purchase.unique_code}.zip"`,
+            'Content-Length': fileBuffer.length.toString(),
           },
         });
       } catch (error) {
         console.error('Error leyendo archivo ZIP:', error);
         return NextResponse.json(
-          { error: 'Error al descargar los boletos' },
+          { error: `Archivo no encontrado: ${pdfFilenames[0]}. Contacta al administrador para regenerar los PDFs.` },
           { status: 500 }
         );
       }

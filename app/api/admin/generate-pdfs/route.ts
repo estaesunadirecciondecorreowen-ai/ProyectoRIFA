@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { existsSync } from 'fs';
 
 export async function POST(request: Request) {
   try {
@@ -121,9 +122,21 @@ export async function POST(request: Request) {
     const timestamp = Date.now();
     const zipFilename = `boletos_${timestamp}.zip`;
     const ticketsPdfDir = path.join(process.cwd(), 'tickets_pdf');
+    
+    // Crear carpeta si no existe
+    if (!existsSync(ticketsPdfDir)) {
+      await mkdir(ticketsPdfDir, { recursive: true });
+    }
+    
     const zipPath = path.join(ticketsPdfDir, zipFilename);
 
-    await writeFile(zipPath, zipBuffer);
+    try {
+      await writeFile(zipPath, zipBuffer);
+      console.log('ZIP guardado exitosamente en:', zipPath);
+    } catch (writeError) {
+      console.error('Error al guardar ZIP:', writeError);
+      throw new Error('Error al guardar el archivo ZIP');
+    }
 
     // Actualizar los boletos con la información del PDF
     await prisma.ticket.updateMany({
