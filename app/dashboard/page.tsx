@@ -64,11 +64,11 @@ export default function DashboardPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+          <h1 className="text-4xl font-bold text-white mb-2">
             Mi Dashboard
           </h1>
-          <p className="text-gray-600">
-            Bienvenido, <strong>{session?.user?.name}</strong>
+          <p className="text-white text-lg">
+            Bienvenido, <strong className="text-white">{session?.user?.name}</strong>
           </p>
         </div>
 
@@ -144,10 +144,10 @@ export default function DashboardPage() {
                   >
                     <div className="flex flex-wrap items-start justify-between mb-4">
                       <div>
-                        <p className="text-sm text-gray-500">
-                          Código: <span className="font-mono font-bold">{purchase.unique_code}</span>
+                        <p className="text-sm text-blue-700 font-medium">
+                          Código: <span className="font-mono font-bold text-blue-800">{purchase.unique_code}</span>
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-blue-700 font-medium">
                           {formatDate(new Date(purchase.created_at))}
                         </p>
                       </div>
@@ -158,19 +158,19 @@ export default function DashboardPage() {
 
                     <div className="grid md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <p className="text-sm text-gray-600">Método de pago</p>
-                        <p className="font-medium capitalize">{purchase.method}</p>
+                        <p className="text-sm text-blue-700 font-medium">Método de pago</p>
+                        <p className="font-bold capitalize text-blue-800">{purchase.method}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Total pagado</p>
-                        <p className="font-bold text-lg text-primary-600">
+                        <p className="text-sm text-blue-700 font-medium">Total pagado</p>
+                        <p className="font-bold text-lg text-green-600">
                           {formatCurrency(purchase.total)}
                         </p>
                       </div>
                     </div>
 
                     <div>
-                      <p className="text-sm text-gray-600 mb-2">
+                      <p className="text-sm text-blue-700 font-medium mb-2">
                         Boletos ({purchase.tickets.length}):
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -194,24 +194,24 @@ export default function DashboardPage() {
                     {/* Información del comprador y vendedor */}
                     {(purchase.comprador_nombre || purchase.vendedor_nombre) && (
                       <div className="mt-4 pt-4 border-t border-gray-200">
-                        <p className="text-sm text-gray-600 mb-2">Información de la compra:</p>
+                        <p className="text-sm text-blue-700 font-medium mb-2">Información de la compra:</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                           {purchase.comprador_nombre && (
                             <div>
-                              <span className="text-gray-500">Comprador:</span>{' '}
-                              <span className="font-medium">{purchase.comprador_nombre}</span>
+                              <span className="text-blue-700">Comprador:</span>{' '}
+                              <span className="font-bold text-blue-800">{purchase.comprador_nombre}</span>
                             </div>
                           )}
                           {purchase.telefono_comprador && (
                             <div>
-                              <span className="text-gray-500">Teléfono:</span>{' '}
-                              <span className="font-medium">{purchase.telefono_comprador}</span>
+                              <span className="text-blue-700">Teléfono:</span>{' '}
+                              <span className="font-bold text-blue-800">{purchase.telefono_comprador}</span>
                             </div>
                           )}
                           {purchase.vendedor_nombre && (
                             <div>
-                              <span className="text-gray-500">Vendedor:</span>{' '}
-                              <span className="font-medium">{purchase.vendedor_nombre}</span>
+                              <span className="text-blue-700">Vendedor:</span>{' '}
+                              <span className="font-bold text-blue-800">{purchase.vendedor_nombre}</span>
                             </div>
                           )}
                         </div>
@@ -220,20 +220,20 @@ export default function DashboardPage() {
 
                     {purchase.transfer && (
                       <div className="mt-4 pt-4 border-t border-gray-200">
-                        <p className="text-sm text-gray-600 mb-2">Información de transferencia:</p>
+                        <p className="text-sm text-blue-700 font-medium mb-2">Información de transferencia:</p>
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           <div>
-                            <span className="text-gray-500">Folio:</span>{' '}
-                            <span className="font-medium">{purchase.transfer.folio}</span>
+                            <span className="text-blue-700">Folio:</span>{' '}
+                            <span className="font-bold text-blue-800">{purchase.transfer.folio}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">Monto:</span>{' '}
-                            <span className="font-medium">{formatCurrency(purchase.transfer.monto)}</span>
+                            <span className="text-blue-700">Monto:</span>{' '}
+                            <span className="font-bold text-green-600">{formatCurrency(purchase.transfer.monto)}</span>
                           </div>
                         </div>
                         {purchase.transfer.admin_notes && (
-                          <div className="mt-2 p-3 bg-gray-50 rounded text-sm">
-                            <p className="text-gray-600">
+                          <div className="mt-2 p-3 bg-blue-50 rounded text-sm">
+                            <p className="text-blue-800">
                               <strong>Nota del administrador:</strong> {purchase.transfer.admin_notes}
                             </p>
                           </div>
@@ -247,10 +247,13 @@ export default function DashboardPage() {
                         <a
                           href={`/api/user/download-tickets?purchaseId=${purchase.id}`}
                           download
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition-colors"
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 shadow-lg"
                         >
                           📥 Descargar mis Boletos en PDF
                         </a>
+                        <p className="text-sm text-green-600 font-medium mt-2">
+                          ✅ Tus boletos están listos para descargar
+                        </p>
                       </div>
                     )}
                   </div>
