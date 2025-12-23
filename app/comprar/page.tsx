@@ -182,14 +182,14 @@ export default function ComprarPage() {
         ) : (
           <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl mx-auto">
             <div className="mb-6">
-              <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mx-auto mb-4">
-                <span className="text-3xl">✓</span>
+              <div className="flex items-center justify-center w-20 h-20 bg-green-500 rounded-full mx-auto mb-4">
+                <span className="text-5xl text-white font-bold">✓</span>
               </div>
               <h2 className="text-2xl font-bold text-center mb-2">
                 ¡Boletos Reservados!
               </h2>
               <p className="text-center text-gray-600">
-                Código de compra: <strong className="text-primary-600">{purchaseData.uniqueCode}</strong>
+                Código de compra: <strong className="text-primary-600">RIFA</strong>
               </p>
             </div>
 
