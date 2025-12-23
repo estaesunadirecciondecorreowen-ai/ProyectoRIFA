@@ -4,6 +4,8 @@ import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { TicketStatus, PurchaseStatus } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);

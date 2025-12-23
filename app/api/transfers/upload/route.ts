@@ -8,6 +8,8 @@ import { hashFile, validateFolio, validateAmount } from '@/lib/utils';
 import { sendEmail, getTransferReceivedEmailHtml } from '@/lib/email';
 import { TicketStatus, TransferStatus } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);

@@ -8,6 +8,8 @@ import { existsSync } from 'fs';
 import archiver from 'archiver';
 import { Readable } from 'stream';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);

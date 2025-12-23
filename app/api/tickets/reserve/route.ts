@@ -5,6 +5,8 @@ import { authOptions } from '@/lib/auth';
 import { generateUniqueCode } from '@/lib/utils';
 import { TicketStatus, PurchaseStatus } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 const RESERVATION_TIME_MINUTES = 20;
 
 export async function POST(request: Request) {
