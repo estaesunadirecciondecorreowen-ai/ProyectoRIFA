@@ -210,7 +210,7 @@ export default function AdminPage() {
                   onChange={(e) => setTicketNumber(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && searchTicket()}
                   placeholder="Número de boleto (1-500)"
-                  className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-blue-700 font-medium placeholder:text-gray-400"
                 />
                 <button
                   onClick={searchTicket}
@@ -269,7 +269,7 @@ export default function AdminPage() {
                 onChange={(e) => setPdfTickets(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && generatePDFs()}
                 placeholder="Ejemplo: 1,2,5,10,25"
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-blue-700 font-medium placeholder:text-gray-400"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Los boletos deben estar vendidos para poder generar sus PDFs

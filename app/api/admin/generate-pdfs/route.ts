@@ -82,7 +82,16 @@ export async function POST(request: Request) {
     }
 
     const result = await response.json();
-    const files = result.tickets || [];
+    console.log('API Response:', result);
+    
+    // Convertir a array si es necesario
+    let files = result.tickets || [];
+    if (typeof files === 'string') {
+      files = files.split(',');
+    }
+    if (!Array.isArray(files)) {
+      files = [files];
+    }
 
     if (files.length === 0) {
       return NextResponse.json(
@@ -95,7 +104,7 @@ export async function POST(request: Request) {
     const downloadUrl =
       'https://tickets-fqbvdgbeewbedkfs.centralus-01.azurewebsites.net/download';
     const downloadParams = new URLSearchParams({
-      files: files.join(','),
+      files: Array.isArray(files) ? files.join(',') : files.toString(),
     });
 
     const downloadResponse = await fetch(`${downloadUrl}?${downloadParams.toString()}`, {
