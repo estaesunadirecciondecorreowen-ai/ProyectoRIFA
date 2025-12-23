@@ -79,31 +79,31 @@ export default function TicketGrid({
     <div className="space-y-6">
       {/* Estadísticas */}
       {stats && (
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary-600">{stats.total}</div>
-              <div className="text-sm text-gray-600">Total</div>
+              <div className="text-2xl sm:text-3xl font-bold text-primary-600">{stats.total}</div>
+              <div className="text-xs sm:text-sm text-gray-600">Total</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">{stats.available}</div>
-              <div className="text-sm text-gray-600">Disponibles</div>
+              <div className="text-2xl sm:text-3xl font-bold text-green-600">{stats.available}</div>
+              <div className="text-xs sm:text-sm text-gray-600">Disponibles</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-red-600">{stats.sold}</div>
-              <div className="text-sm text-gray-600">Vendidos</div>
+              <div className="text-2xl sm:text-3xl font-bold text-red-600">{stats.sold}</div>
+              <div className="text-xs sm:text-sm text-gray-600">Vendidos</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600">{stats.percentage}%</div>
-              <div className="text-sm text-gray-600">Progreso</div>
+              <div className="text-2xl sm:text-3xl font-bold text-purple-600">{stats.percentage}%</div>
+              <div className="text-xs sm:text-sm text-gray-600">Progreso</div>
             </div>
           </div>
 
           {/* Barra de progreso */}
-          <div className="mt-6">
-            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+          <div className="mt-4 sm:mt-6">
+            <div className="w-full bg-gray-200 rounded-full h-3 sm:h-4 overflow-hidden">
               <div
-                className="bg-gradient-to-r from-primary-600 to-purple-600 h-4 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-primary-600 to-purple-600 h-3 sm:h-4 rounded-full transition-all duration-500"
                 style={{ width: `${stats.percentage}%` }}
               ></div>
             </div>
@@ -115,7 +115,7 @@ export default function TicketGrid({
       <div className="flex flex-wrap gap-2 justify-center">
         <button
           onClick={() => setFilter('all')}
-          className={`px-4 py-2 rounded-md font-medium ${
+          className={`px-3 sm:px-4 py-2 rounded-md font-medium text-sm sm:text-base ${
             filter === 'all'
               ? 'bg-primary-600 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -125,7 +125,7 @@ export default function TicketGrid({
         </button>
         <button
           onClick={() => setFilter('available')}
-          className={`px-4 py-2 rounded-md font-medium ${
+          className={`px-3 sm:px-4 py-2 rounded-md font-medium text-sm sm:text-base ${
             filter === 'available'
               ? 'bg-green-600 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -135,7 +135,7 @@ export default function TicketGrid({
         </button>
         <button
           onClick={() => setFilter('sold')}
-          className={`px-4 py-2 rounded-md font-medium ${
+          className={`px-3 sm:px-4 py-2 rounded-md font-medium text-sm sm:text-base ${
             filter === 'sold'
               ? 'bg-red-600 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -166,14 +166,14 @@ export default function TicketGrid({
       </div>
 
       {/* Grid de boletos - Panel 25x20 */}
-      <div className="bg-white rounded-lg shadow-lg p-4 overflow-x-auto">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-bold text-gray-700">Panel de Boletos (25 x 20)</h3>
-          <p className="text-sm text-gray-500">Total: 500 boletos</p>
+      <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4 overflow-x-auto">
+        <div className="text-center mb-3 sm:mb-4">
+          <h3 className="text-base sm:text-lg font-bold text-gray-700">Panel de Boletos (25 x 20)</h3>
+          <p className="text-xs sm:text-sm text-gray-500">Total: 500 boletos | Desliza horizontalmente →</p>
         </div>
-        <div className="inline-block min-w-max">
+        <div className="inline-block min-w-max mx-auto">
           <div 
-            className="grid gap-1"
+            className="grid gap-0.5 sm:gap-1"
             style={{ 
               gridTemplateColumns: 'repeat(25, minmax(0, 1fr))',
               gridTemplateRows: 'repeat(20, minmax(0, 1fr))'
@@ -191,19 +191,20 @@ export default function TicketGrid({
                   onDoubleClick={() => handleTicketDoubleClick(ticket)}
                   disabled={!isClickable && !isSelected}
                   className={`
-                    relative w-10 h-10 rounded font-bold text-xs
+                    relative w-8 h-8 sm:w-10 sm:h-10 rounded font-bold text-[10px] sm:text-xs
                     transition-all duration-200 transform
                     ${colorClass}
                     ${isSelected ? 'ring-2 ring-blue-500 scale-110 z-10' : ''}
-                    ${isClickable ? 'hover:scale-110 hover:shadow-lg hover:z-10' : ''}
+                    ${isClickable ? 'active:scale-110 sm:hover:scale-110 active:shadow-lg sm:hover:shadow-lg active:z-10 sm:hover:z-10' : ''}
                     flex items-center justify-center
                     text-white
+                    touch-manipulation
                   `}
-                  title={`Boleto #${ticket.numero} - ${getTicketStatusText(ticket.estado)} (Doble clic para ir al formulario)`}
+                  title={`Boleto #${ticket.numero} - ${getTicketStatusText(ticket.estado)}`}
                 >
                   {ticket.numero}
                   {isSelected && (
-                    <div className="absolute -top-0.5 -right-0.5 bg-blue-500 rounded-full w-3 h-3 flex items-center justify-center text-white text-[8px]">
+                    <div className="absolute -top-0.5 -right-0.5 bg-blue-500 rounded-full w-2.5 h-2.5 sm:w-3 sm:h-3 flex items-center justify-center text-white text-[6px] sm:text-[8px]">
                       ✓
                     </div>
                   )}
@@ -215,8 +216,8 @@ export default function TicketGrid({
       </div>
 
       {selectable && selectedTickets.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-center text-blue-800 font-medium">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+          <p className="text-center text-blue-800 font-medium text-sm sm:text-base">
             Has seleccionado {selectedTickets.length} boleto(s): {selectedTickets.sort((a, b) => a - b).join(', ')}
           </p>
         </div>

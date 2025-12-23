@@ -17,25 +17,25 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-r from-red-700 via-red-600 to-green-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
           <div className="text-center animate-fade-in">
-            <div className="text-6xl mb-4">🎄</div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
+            <div className="text-4xl sm:text-6xl mb-4">🎄</div>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6 text-white drop-shadow-lg">
               {raffleName}
             </h1>
-            <p className="text-2xl md:text-3xl mb-8 text-white drop-shadow-md">
+            <p className="text-lg sm:text-2xl md:text-3xl mb-6 sm:mb-8 text-white drop-shadow-md px-2">
               Tu boleto apoya a: <span className="font-bold">{raffleCause}</span>
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
               <Link
                 href="/comprar"
-                className="px-8 py-4 bg-white text-red-600 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white text-red-600 rounded-lg font-bold text-base sm:text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl text-center"
               >
                 🎫 Comprar Boletos
               </Link>
               <Link
                 href="#boletos"
-                className="px-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-white text-white rounded-lg font-bold text-lg hover:bg-white/20 transition-all"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-sm border-2 border-white text-white rounded-lg font-bold text-base sm:text-lg hover:bg-white/20 transition-all text-center"
               >
                 Ver Boletos Disponibles
               </Link>
@@ -75,11 +75,11 @@ export default function Home() {
       </section>
 
       {/* Prize Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-xl shadow-2xl p-8 md:p-12">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">🏆 El Gran Premio</h2>
-            <p className="text-3xl font-bold text-blue-900">Playstation 5</p>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 md:p-12">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">🏆 El Gran Premio</h2>
+            <p className="text-2xl sm:text-3xl font-bold text-blue-900">Playstation 5</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mt-8">
@@ -111,10 +111,10 @@ export default function Home() {
       </section>
 
       {/* Cause Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl shadow-2xl p-8 md:p-12">
-          <h2 className="text-4xl font-bold mb-6 text-center">¿A quién ayudamos?</h2>
-          <p className="text-xl text-center mb-8 max-w-3xl mx-auto">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl shadow-2xl p-6 sm:p-8 md:p-12">
+          <h2 className="text-2xl sm:text-4xl font-bold mb-4 sm:mb-6 text-center">¿A quién ayudamos?</h2>
+          <p className="text-base sm:text-xl text-center mb-6 sm:mb-8 max-w-3xl mx-auto">
             Con tu participación en esta rifa, estás contribuyendo directamente a{' '}
             <strong>{raffleCause}</strong>. Cada boleto cuenta y hace la diferencia.
           </p>
@@ -138,13 +138,13 @@ export default function Home() {
       </section>
 
       {/* How to Participate Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-xl shadow-2xl p-8 md:p-12">
-          <h2 className="text-4xl font-bold text-center mb-12 text-gray-800">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 md:p-12">
+          <h2 className="text-2xl sm:text-4xl font-bold text-center mb-8 sm:mb-12 text-gray-800">
             ¿Cómo participar?
           </h2>
 
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                 1
@@ -195,12 +195,12 @@ export default function Home() {
       </section>
 
       {/* Tickets Dashboard Section */}
-      <section id="boletos" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold text-white mb-4">
+      <section id="boletos" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-4xl font-bold text-white mb-3 sm:mb-4">
             Dashboard de Boletos
           </h2>
-          <p className="text-xl text-white">
+          <p className="text-base sm:text-xl text-white">
             Boletos disponibles en tiempo real
           </p>
         </div>
@@ -208,17 +208,17 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mb-12">
-        <div className="bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl shadow-2xl p-12 text-center">
-          <h2 className="text-4xl font-bold mb-6">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 mb-8 sm:mb-12">
+        <div className="bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl shadow-2xl p-6 sm:p-12 text-center">
+          <h2 className="text-2xl sm:text-4xl font-bold mb-4 sm:mb-6">
             ¿Listo para participar?
           </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl mb-6 sm:mb-8 max-w-2xl mx-auto">
             Únete a cientos de personas que ya están participando y apoyando esta gran causa
           </p>
           <Link
             href="/comprar"
-            className="inline-block px-8 py-4 bg-white text-green-600 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl"
+            className="inline-block w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white text-green-600 rounded-lg font-bold text-base sm:text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl"
           >
             🎫 Comprar Boletos Ahora
           </Link>
