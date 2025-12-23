@@ -54,6 +54,7 @@ async function createAdmin() {
       data: {
         nombre,
         email,
+        telefono: '0000000000',
         password_hash,
         email_verified: true,
         rol: 'ADMIN'

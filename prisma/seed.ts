@@ -17,6 +17,7 @@ async function main() {
       data: {
         nombre: 'Administrador',
         email: 'admin@rifaaltruista.com',
+        telefono: '0000000000',
         password_hash: adminPassword,
         email_verified: true,
         rol: 'ADMIN',

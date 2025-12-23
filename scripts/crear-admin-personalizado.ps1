@@ -38,7 +38,7 @@ async function main() {
     data: {
       nombre: '$nombre'.trim(),
       email,
-      telefono: '$telefono'.trim() || null,
+      telefono: '$telefono'.trim() || '0000000000',
       password_hash,
       email_verified: true,
       rol: 'ADMIN',
