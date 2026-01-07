@@ -125,7 +125,7 @@ export default function AdminPage() {
           <h1 className="text-4xl font-bold text-white mb-2">
             Panel de Administración
           </h1>
-          <p className="text-white">
+          <p className="text-black">
             Vista general del sistema
           </p>
         </div>
