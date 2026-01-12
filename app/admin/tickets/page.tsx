@@ -26,8 +26,7 @@ export default function AdminTicketsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [qInput, setQInput] = useState('');
-  const [qApplied, setQApplied] = useState('');
+  const [q, setQ] = useState('');
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,16 +42,15 @@ export default function AdminTicketsPage() {
         router.push('/dashboard');
         return;
       }
-      void fetchAll();
+      void fetchRows('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
-  // ✅ Trae todo una vez
-  const fetchAll = async () => {
+  const fetchRows = async (query: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/tickets?mode=grid&pageSize=500`, { cache: 'no-store' });
+      const res = await fetch(`/api/admin/tickets?q=${encodeURIComponent(query)}`, { cache: 'no-store' });
       const data = await res.json();
 
       if (!res.ok) throw new Error(data?.error || 'Error cargando tickets');
@@ -65,31 +63,7 @@ export default function AdminTicketsPage() {
     }
   };
 
-  // ✅ Filtro client-side (nunca falla)
-  const filteredRows = useMemo(() => {
-    const q = qApplied.trim().toLowerCase();
-    if (!q) return rows;
-
-    return rows.filter((r) => {
-      const haystack = [
-        String(r.numero ?? ''),
-        r.estado ?? '',
-        r.comprador_nombre ?? '',
-        r.correo ?? '',
-        r.telefono ?? '',
-        r.folio ?? '',
-        r.metodo ?? '',
-        r.vendedor_nombre ?? '',
-        r.unique_code ?? '',
-      ]
-        .join(' ')
-        .toLowerCase();
-
-      return haystack.includes(q);
-    });
-  }, [rows, qApplied]);
-
-  const countLabel = useMemo(() => `${filteredRows.length} registro(s)`, [filteredRows.length]);
+  const countLabel = useMemo(() => `${rows.length} registro(s)`, [rows.length]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-900 via-red-800 to-red-900">
@@ -125,34 +99,17 @@ export default function AdminTicketsPage() {
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
           <div className="flex flex-col md:flex-row gap-3">
             <input
-              value={qInput}
-              onChange={(e) => setQInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && setQApplied(qInput)}
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && fetchRows(q)}
               placeholder="Ej: 123 | Juan | correo@gmail.com | 55... | FOLIO..."
               className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg text-blue-700 font-medium placeholder:text-gray-400"
             />
             <button
-              onClick={() => setQApplied(qInput)}
+              onClick={() => fetchRows(q)}
               className="px-6 py-2 bg-blue-700 text-white rounded-lg font-bold hover:bg-blue-800 transition-colors"
             >
               🔍 Buscar
-            </button>
-
-            <button
-              onClick={() => {
-                setQInput('');
-                setQApplied('');
-              }}
-              className="px-6 py-2 bg-gray-200 text-gray-900 rounded-lg font-bold hover:bg-gray-300 transition-colors"
-            >
-              Limpiar
-            </button>
-
-            <button
-              onClick={fetchAll}
-              className="px-6 py-2 bg-black text-white rounded-lg font-bold hover:bg-gray-900 transition-colors"
-            >
-              ↻ Recargar
             </button>
           </div>
         </div>
@@ -160,7 +117,7 @@ export default function AdminTicketsPage() {
         <div className="bg-white rounded-xl shadow-lg p-4">
           {loading ? (
             <div className="py-16 text-center text-gray-700">Cargando…</div>
-          ) : filteredRows.length === 0 ? (
+          ) : rows.length === 0 ? (
             <div className="py-16 text-center text-gray-600">Sin resultados</div>
           ) : (
             <div className="overflow-x-auto">
@@ -180,7 +137,7 @@ export default function AdminTicketsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredRows.map((r) => (
+                  {rows.map((r) => (
                     <tr key={r.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4 font-bold text-blue-700">#{r.numero}</td>
                       <td className="py-3 px-4 text-gray-800">{r.estado}</td>
@@ -201,7 +158,6 @@ export default function AdminTicketsPage() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

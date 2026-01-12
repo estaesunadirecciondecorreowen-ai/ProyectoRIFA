@@ -50,7 +50,6 @@ export default function AdminPage() {
     }
   };
 
-  // ✅ FIX: ya no usamos /api/tickets (público). Usamos lookup admin (1 ticket).
   const searchTicket = async () => {
     const totalTickets = parseInt(process.env.NEXT_PUBLIC_TOTAL_TICKETS || '500');
     const num = parseInt(ticketNumber);
@@ -61,18 +60,17 @@ export default function AdminPage() {
     }
 
     try {
-      const response = await fetch(`/api/admin/tickets/lookup?numero=${num}`, { cache: 'no-store' });
+      const response = await fetch('/api/tickets', { cache: 'no-store' });
       const data = await response.json();
+      const ticket = data.tickets.find((t: any) => t.numero === num);
 
-      if (!response.ok) throw new Error(data?.error || 'Error al buscar boleto');
-
-      if (data?.ticket) setTicketInfo(data.ticket);
+      if (ticket) setTicketInfo(ticket);
       else {
         toast.error('Boleto no encontrado');
         setTicketInfo(null);
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Error al buscar boleto');
+    } catch {
+      toast.error('Error al buscar boleto');
       setTicketInfo(null);
     }
   };
@@ -155,6 +153,7 @@ export default function AdminPage() {
             🏪 Ventas Físicas
           </button>
 
+          {/* ✅ Botón a la tabla completa */}
           <button
             onClick={() => router.push('/admin/tickets')}
             className="px-6 py-3 bg-blue-700 text-white rounded-lg font-bold hover:bg-blue-800 transition-colors flex items-center gap-2"
@@ -197,7 +196,8 @@ export default function AdminPage() {
                 <div className="flex-1">
                   <p className="text-sm text-gray-600">Boleto #{ticketInfo.numero}</p>
                   <p className="font-bold text-lg text-gray-900">
-                    Estado: <span className="text-gray-800">{ticketInfo.estado}</span>
+                    Estado:{' '}
+                    <span className="text-gray-800">{ticketInfo.estado}</span>
                   </p>
                 </div>
 
@@ -287,7 +287,6 @@ export default function AdminPage() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );
