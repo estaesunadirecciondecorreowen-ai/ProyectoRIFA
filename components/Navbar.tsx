@@ -7,10 +7,7 @@ import { usePathname } from 'next/navigation';
 export default function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
-
-  // Soporta role o rol
-  const userRole = (session?.user as any)?.role ?? (session?.user as any)?.rol;
-  const isAdmin = userRole === 'ADMIN';
+  const isAdmin = (session?.user as any)?.role === 'ADMIN';
 
   return (
     <nav className="bg-white shadow-lg">
@@ -56,7 +53,6 @@ export default function Navbar() {
                     >
                       Mis Boletos
                     </Link>
-
                     <Link
                       href="/comprar"
                       className={`px-4 py-2 rounded-md font-medium ${
@@ -71,7 +67,8 @@ export default function Navbar() {
                 )}
 
                 <button
-                  onClick={() => signOut({ callbackUrl: '/auth/login' })}
+                  type="button"
+                  onClick={() => signOut({ callbackUrl: '/' })}
                   className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium"
                 >
                   Salir
@@ -85,7 +82,6 @@ export default function Navbar() {
                 >
                   Iniciar Sesión
                 </Link>
-
                 <Link
                   href="/auth/register"
                   className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium"

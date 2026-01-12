@@ -34,24 +34,29 @@ export default function AdminTicketsPage() {
       router.push('/auth/login');
       return;
     }
+
     if (status === 'authenticated') {
       const userRole = (session?.user as any)?.role ?? (session?.user as any)?.rol;
-      if (userRole !== 'ADMIN') router.push('/dashboard');
-      else fetchRows();
+      if (userRole !== 'ADMIN') {
+        router.push('/dashboard');
+        return;
+      }
+      fetchRows();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
+  }, [status, session]);
 
   const fetchRows = async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/admin/tickets', { cache: 'no-store' });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error cargando boletos');
-      setRows(data.rows || []);
+
+      if (!res.ok) throw new Error(data?.error || 'Error cargando boletos');
+      setRows(data?.rows || []);
     } catch (e: any) {
       console.error(e);
-      toast.error(e.message || 'Error cargando boletos');
+      toast.error(e?.message || 'Error cargando boletos');
     } finally {
       setLoading(false);
     }
@@ -74,6 +79,7 @@ export default function AdminTicketsPage() {
       ]
         .join(' ')
         .toLowerCase();
+
       return blob.includes(term);
     });
   }, [q, rows]);
@@ -93,6 +99,7 @@ export default function AdminTicketsPage() {
           </div>
 
           <button
+            type="button"
             onClick={() => router.push('/admin')}
             className="px-6 py-3 bg-yellow-600 text-white rounded-lg font-bold hover:bg-yellow-700 transition-colors"
           >
@@ -100,16 +107,16 @@ export default function AdminTicketsPage() {
           </button>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
+        <div className="bg-white rounded-xl shadow-lg p-4 mb-6 text-gray-900">
           <div className="flex gap-2">
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && null}
               placeholder="Ej: 123 | Juan | correo@gmail.com | 55... | FOLIO..."
-              className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-blue-700 font-medium"
+              className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-blue-700 font-medium placeholder:text-gray-400"
             />
             <button
+              type="button"
               onClick={() => null}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
             >
@@ -118,13 +125,13 @@ export default function AdminTicketsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden text-gray-900">
           {loading ? (
             <div className="p-8 text-center text-gray-600">Cargando...</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-gray-50 border-b">
+              <table className="min-w-full text-sm">
+                <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="text-left py-3 px-4 font-bold text-gray-800">Boleto</th>
                     <th className="text-left py-3 px-4 font-bold text-gray-800">Estado</th>
@@ -136,17 +143,18 @@ export default function AdminTicketsPage() {
                     <th className="text-left py-3 px-4 font-bold text-gray-800">Vendedor</th>
                   </tr>
                 </thead>
-                <tbody>
+
+                <tbody className="bg-white">
                   {filtered.map((r) => (
-                    <tr key={r.id} className="border-b hover:bg-gray-50">
+                    <tr key={r.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4 font-bold text-blue-700">#{r.numero}</td>
-                      <td className="py-3 px-4">{r.estado}</td>
-                      <td className="py-3 px-4">{r.comprador}</td>
-                      <td className="py-3 px-4">{r.correo}</td>
-                      <td className="py-3 px-4">{r.telefono}</td>
-                      <td className="py-3 px-4">{r.folio}</td>
-                      <td className="py-3 px-4">{r.method}</td>
-                      <td className="py-3 px-4">{r.vendedor}</td>
+                      <td className="py-3 px-4 text-gray-900">{r.estado || '-'}</td>
+                      <td className="py-3 px-4 text-gray-900">{r.comprador || '-'}</td>
+                      <td className="py-3 px-4 text-gray-900">{r.correo || '-'}</td>
+                      <td className="py-3 px-4 text-gray-900">{r.telefono || '-'}</td>
+                      <td className="py-3 px-4 text-gray-900">{r.folio || '-'}</td>
+                      <td className="py-3 px-4 text-gray-900">{r.method || '-'}</td>
+                      <td className="py-3 px-4 text-gray-900">{r.vendedor || '-'}</td>
                     </tr>
                   ))}
 
