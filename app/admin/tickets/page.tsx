@@ -12,15 +12,99 @@ type Row = {
   id: string;
   numero: number;
   estado: string;
+
   comprador_nombre: string | null;
   correo: string | null;
   telefono: string | null;
+
   vendedor_nombre: string | null;
   metodo: string | null;
   folio: string | null;
+
   unique_code: string | null;
-  updated_at: string;
+  updated_at: string | null;
 };
+
+function safeToString(v: any): string | null {
+  if (v === null || v === undefined) return null;
+  const s = String(v).trim();
+  return s.length ? s : null;
+}
+
+function safeDateISO(v: any): string | null {
+  // Acepta Date, string ISO, timestamp, etc. Si no es válido, regresa null
+  if (!v) return null;
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
+function normalizeRow(raw: any): Row {
+  // Soporta múltiples nombres provenientes de tu route actual
+  // - comprador o comprador_nombre
+  // - vendedor o vendedor_nombre
+  // - folioTransferencia o folio
+  // - purchaseCode o unique_code
+  // - updatedAt o updated_at
+  const id = safeToString(raw?.id) ?? `${raw?.numero ?? Math.random()}`;
+
+  const numero = Number(raw?.numero ?? 0);
+  const estado = safeToString(raw?.estado) ?? '-';
+
+  const comprador_nombre =
+    safeToString(raw?.comprador_nombre) ??
+    safeToString(raw?.comprador) ??
+    safeToString(raw?.buyerName) ??
+    null;
+
+  const correo = safeToString(raw?.correo) ?? safeToString(raw?.buyerEmail) ?? null;
+
+  const telefono =
+    safeToString(raw?.telefono) ??
+    safeToString(raw?.buyerPhone) ??
+    null;
+
+  const vendedor_nombre =
+    safeToString(raw?.vendedor_nombre) ??
+    safeToString(raw?.vendedor) ??
+    null;
+
+  const metodo =
+    safeToString(raw?.metodo) ??
+    safeToString(raw?.method) ??
+    null;
+
+  const folio =
+    safeToString(raw?.folio) ??
+    safeToString(raw?.folioTransferencia) ??
+    null;
+
+  const unique_code =
+    safeToString(raw?.unique_code) ??
+    safeToString(raw?.purchaseCode) ??
+    safeToString(raw?.purchase_code) ??
+    null;
+
+  const updated_at =
+    safeDateISO(raw?.updated_at) ??
+    safeDateISO(raw?.updatedAt) ??
+    safeDateISO(raw?.updated_at_str) ??
+    null;
+
+  return {
+    id,
+    numero: Number.isFinite(numero) ? numero : 0,
+    estado,
+    comprador_nombre,
+    correo,
+    telefono,
+    vendedor_nombre,
+    metodo,
+    folio,
+    unique_code,
+    updated_at,
+  };
+}
 
 export default function AdminTicketsPage() {
   const { data: session, status } = useSession();
@@ -49,14 +133,32 @@ export default function AdminTicketsPage() {
 
   const fetchRows = async (query: string) => {
     setLoading(true);
-    try {
-      const res = await fetch(`/api/admin/tickets?q=${encodeURIComponent(query)}`, { cache: 'no-store' });
-      const data = await res.json();
 
+    try {
+      // 👇 Forzamos modo grid para que, si tu route lo soporta, entregue rows extendidas.
+      // Si tu route ignora mode, NO pasa nada: igual normalizamos.
+      const url = `/api/admin/tickets?mode=grid&pageSize=500&q=${encodeURIComponent(query)}`;
+      const res = await fetch(url, { cache: 'no-store' });
+      const data = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        router.push('/auth/login');
+        return;
+      }
       if (!res.ok) throw new Error(data?.error || 'Error cargando tickets');
-      setRows((data?.rows || []) as Row[]);
+
+      // ✅ Soporta: { rows: [...] } o { tickets: [...] }
+      const rawList = Array.isArray(data?.rows)
+        ? data.rows
+        : Array.isArray(data?.tickets)
+        ? data.tickets
+        : [];
+
+      const normalized = rawList.map(normalizeRow);
+      setRows(normalized);
     } catch (e: any) {
-      toast.error(e.message);
+      console.error(e);
+      toast.error(e.message || 'Error cargando tickets');
       setRows([]);
     } finally {
       setLoading(false);
@@ -111,6 +213,15 @@ export default function AdminTicketsPage() {
             >
               🔍 Buscar
             </button>
+            <button
+              onClick={() => {
+                setQ('');
+                fetchRows('');
+              }}
+              className="px-6 py-2 bg-gray-200 text-gray-900 rounded-lg font-bold hover:bg-gray-300 transition-colors"
+            >
+              Limpiar
+            </button>
           </div>
         </div>
 
@@ -149,7 +260,7 @@ export default function AdminTicketsPage() {
                       <td className="py-3 px-4 text-gray-800">{r.vendedor_nombre ?? '-'}</td>
                       <td className="py-3 px-4 font-mono text-gray-800">{r.unique_code ?? '-'}</td>
                       <td className="py-3 px-4 text-gray-700">
-                        {formatDate(new Date(r.updated_at))}
+                        {r.updated_at ? formatDate(new Date(r.updated_at)) : '-'}
                       </td>
                     </tr>
                   ))}
@@ -158,6 +269,7 @@ export default function AdminTicketsPage() {
             </div>
           )}
         </div>
+
       </div>
     </div>
   );
