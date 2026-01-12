@@ -19,7 +19,7 @@ type Row = {
   metodo: string | null;
   folio: string | null;
   unique_code: string | null;
-  updated_at: string | Date;
+  updated_at: string;
 };
 
 export default function AdminTicketsPage() {
@@ -42,7 +42,7 @@ export default function AdminTicketsPage() {
         router.push('/dashboard');
         return;
       }
-      fetchRows('');
+      void fetchRows('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
@@ -52,8 +52,9 @@ export default function AdminTicketsPage() {
     try {
       const res = await fetch(`/api/admin/tickets?q=${encodeURIComponent(query)}`, { cache: 'no-store' });
       const data = await res.json();
+
       if (!res.ok) throw new Error(data?.error || 'Error cargando tickets');
-      setRows(data.rows || []);
+      setRows((data?.rows || []) as Row[]);
     } catch (e: any) {
       toast.error(e.message);
       setRows([]);
@@ -73,15 +74,26 @@ export default function AdminTicketsPage() {
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
             <h1 className="text-4xl font-bold text-white">Base completa de boletos</h1>
-            <p className="text-white/80 mt-1">Busca por boleto, nombre, correo, teléfono o folio. ({countLabel})</p>
+            <p className="text-white/80 mt-1">
+              Busca por boleto, nombre, correo, teléfono o folio. ({countLabel})
+            </p>
           </div>
 
-          <button
-            onClick={() => router.push('/admin')}
-            className="px-5 py-3 bg-yellow-600 text-white rounded-lg font-bold hover:bg-yellow-700 transition-colors"
-          >
-            ← Volver al panel
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => router.push('/admin')}
+              className="px-5 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors"
+            >
+              Panel Admin
+            </button>
+
+            <button
+              onClick={() => router.push('/admin')}
+              className="px-5 py-3 bg-yellow-600 text-white rounded-lg font-bold hover:bg-yellow-700 transition-colors"
+            >
+              ← Volver al panel
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
