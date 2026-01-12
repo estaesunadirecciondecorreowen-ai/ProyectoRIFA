@@ -6,31 +6,28 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import Navbar from '@/components/Navbar';
 import SnowEffect from '@/components/SnowEffect';
-import { formatDate } from '@/lib/utils';
 
 type Row = {
   id: string;
   numero: number;
   estado: string;
-  comprador_nombre: string | null;
-  correo: string | null;
-  telefono: string | null;
-  vendedor_nombre: string | null;
-  metodo: string | null;
-  folio: string | null;
-  unique_code: string | null;
-  updated_at: string;
+
+  comprador: string;
+  correo: string;
+  telefono: string;
+
+  folio: string;
+  method: string;
+  vendedor: string;
 };
 
 export default function AdminTicketsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [q, setQ] = useState('');
-  const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const userRole = (session?.user as any)?.role ?? (session?.user as any)?.rol;
+  const [rows, setRows] = useState<Row[]>([]);
+  const [q, setQ] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -38,32 +35,48 @@ export default function AdminTicketsPage() {
       return;
     }
     if (status === 'authenticated') {
-      if (userRole !== 'ADMIN') {
-        router.push('/dashboard');
-        return;
-      }
-      void fetchRows('');
+      const userRole = (session?.user as any)?.role ?? (session?.user as any)?.rol;
+      if (userRole !== 'ADMIN') router.push('/dashboard');
+      else fetchRows();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
-  const fetchRows = async (query: string) => {
+  const fetchRows = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/tickets?q=${encodeURIComponent(query)}`, { cache: 'no-store' });
+      const res = await fetch('/api/admin/tickets', { cache: 'no-store' });
       const data = await res.json();
-
-      if (!res.ok) throw new Error(data?.error || 'Error cargando tickets');
-      setRows((data?.rows || []) as Row[]);
+      if (!res.ok) throw new Error(data.error || 'Error cargando boletos');
+      setRows(data.rows || []);
     } catch (e: any) {
-      toast.error(e.message);
-      setRows([]);
+      console.error(e);
+      toast.error(e.message || 'Error cargando boletos');
     } finally {
       setLoading(false);
     }
   };
 
-  const countLabel = useMemo(() => `${rows.length} registro(s)`, [rows.length]);
+  const filtered = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (!term) return rows;
+
+    return rows.filter((r) => {
+      const blob = [
+        r.numero,
+        r.estado,
+        r.comprador,
+        r.correo,
+        r.telefono,
+        r.folio,
+        r.method,
+        r.vendedor,
+      ]
+        .join(' ')
+        .toLowerCase();
+      return blob.includes(term);
+    });
+  }, [q, rows]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-900 via-red-800 to-red-900">
@@ -71,59 +84,48 @@ export default function AdminTicketsPage() {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-start justify-between gap-4 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
             <h1 className="text-4xl font-bold text-white">Base completa de boletos</h1>
-            <p className="text-white/80 mt-1">
-              Busca por boleto, nombre, correo, teléfono o folio. ({countLabel})
+            <p className="text-white/80">
+              Busca por boleto, nombre, correo, teléfono o folio. ({filtered.length} registro(s))
             </p>
           </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={() => router.push('/admin')}
-              className="px-5 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors"
-            >
-              Panel Admin
-            </button>
-
-            <button
-              onClick={() => router.push('/admin')}
-              className="px-5 py-3 bg-yellow-600 text-white rounded-lg font-bold hover:bg-yellow-700 transition-colors"
-            >
-              ← Volver al panel
-            </button>
-          </div>
+          <button
+            onClick={() => router.push('/admin')}
+            className="px-6 py-3 bg-yellow-600 text-white rounded-lg font-bold hover:bg-yellow-700 transition-colors"
+          >
+            ← Volver al panel
+          </button>
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-3">
+          <div className="flex gap-2">
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && fetchRows(q)}
+              onKeyDown={(e) => e.key === 'Enter' && null}
               placeholder="Ej: 123 | Juan | correo@gmail.com | 55... | FOLIO..."
-              className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg text-blue-700 font-medium placeholder:text-gray-400"
+              className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-blue-700 font-medium"
             />
             <button
-              onClick={() => fetchRows(q)}
-              className="px-6 py-2 bg-blue-700 text-white rounded-lg font-bold hover:bg-blue-800 transition-colors"
+              onClick={() => null}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
             >
-              🔍 Buscar
+              🔎 Buscar
             </button>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-4">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {loading ? (
-            <div className="py-16 text-center text-gray-700">Cargando…</div>
-          ) : rows.length === 0 ? (
-            <div className="py-16 text-center text-gray-600">Sin resultados</div>
+            <div className="p-8 text-center text-gray-600">Cargando...</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b-2 border-gray-200 bg-gray-50">
+              <table className="min-w-full">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
                     <th className="text-left py-3 px-4 font-bold text-gray-800">Boleto</th>
                     <th className="text-left py-3 px-4 font-bold text-gray-800">Estado</th>
                     <th className="text-left py-3 px-4 font-bold text-gray-800">Comprador</th>
@@ -132,27 +134,29 @@ export default function AdminTicketsPage() {
                     <th className="text-left py-3 px-4 font-bold text-gray-800">Folio</th>
                     <th className="text-left py-3 px-4 font-bold text-gray-800">Método</th>
                     <th className="text-left py-3 px-4 font-bold text-gray-800">Vendedor</th>
-                    <th className="text-left py-3 px-4 font-bold text-gray-800">Código</th>
-                    <th className="text-left py-3 px-4 font-bold text-gray-800">Actualizado</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  {filtered.map((r) => (
+                    <tr key={r.id} className="border-b hover:bg-gray-50">
                       <td className="py-3 px-4 font-bold text-blue-700">#{r.numero}</td>
-                      <td className="py-3 px-4 text-gray-800">{r.estado}</td>
-                      <td className="py-3 px-4 text-gray-800">{r.comprador_nombre ?? '-'}</td>
-                      <td className="py-3 px-4 text-gray-800">{r.correo ?? '-'}</td>
-                      <td className="py-3 px-4 text-gray-800">{r.telefono ?? '-'}</td>
-                      <td className="py-3 px-4 font-mono text-gray-800">{r.folio ?? '-'}</td>
-                      <td className="py-3 px-4 text-gray-800">{r.metodo ?? '-'}</td>
-                      <td className="py-3 px-4 text-gray-800">{r.vendedor_nombre ?? '-'}</td>
-                      <td className="py-3 px-4 font-mono text-gray-800">{r.unique_code ?? '-'}</td>
-                      <td className="py-3 px-4 text-gray-700">
-                        {formatDate(new Date(r.updated_at))}
-                      </td>
+                      <td className="py-3 px-4">{r.estado}</td>
+                      <td className="py-3 px-4">{r.comprador}</td>
+                      <td className="py-3 px-4">{r.correo}</td>
+                      <td className="py-3 px-4">{r.telefono}</td>
+                      <td className="py-3 px-4">{r.folio}</td>
+                      <td className="py-3 px-4">{r.method}</td>
+                      <td className="py-3 px-4">{r.vendedor}</td>
                     </tr>
                   ))}
+
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td className="py-8 px-4 text-center text-gray-500" colSpan={8}>
+                        No hay resultados.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
