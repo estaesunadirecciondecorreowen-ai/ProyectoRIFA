@@ -22,9 +22,7 @@ export const authOptions: NextAuthOptions = {
       },
 
       async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) {
-          return null;
-        }
+        if (!credentials?.email || !credentials.password) return null;
 
         const email = credentials.email.trim().toLowerCase();
 
@@ -32,26 +30,18 @@ export const authOptions: NextAuthOptions = {
           where: { email },
         });
 
-        if (!user || !user.password_hash) {
-          return null;
-        }
+        if (!user || !user.password_hash) return null;
 
-        const isValid = await bcrypt.compare(
-          credentials.password,
-          user.password_hash
-        );
+        const isValid = await bcrypt.compare(credentials.password, user.password_hash);
+        if (!isValid) return null;
 
-        if (!isValid) {
-          return null;
-        }
-
-        // Devolver el objeto User con los campos que NextAuth espera
+        // Devolver el objeto user
         return {
           id: user.id,
           email: user.email,
           name: user.nombre,
-          role: user.rol,
-        };
+          role: user.rol, // <- aquí queda como "role"
+        } as any;
       },
     }),
   ],
@@ -59,16 +49,20 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
+        (token as any).id = (user as any).id;
+        (token as any).role = (user as any).role; // ADMIN, USER, etc.
+        // compat opcional
+        (token as any).rol = (user as any).role;
       }
       return token;
     },
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role;
+        (session.user as any).id = (token as any).id as string;
+        (session.user as any).role = (token as any).role;
+        // compat opcional
+        (session.user as any).rol = (token as any).role;
       }
       return session;
     },
@@ -80,4 +74,3 @@ export const authOptions: NextAuthOptions = {
 
   secret: process.env.NEXTAUTH_SECRET,
 };
-

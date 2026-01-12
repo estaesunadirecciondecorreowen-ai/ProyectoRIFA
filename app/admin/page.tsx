@@ -1,302 +1,169 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
-import Navbar from '@/components/Navbar';
-import SnowEffect from '@/components/SnowEffect';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-export default function AdminPage() {
-  const { data: session, status } = useSession();
+type TicketSimple = { id: string; numero: number; estado: string };
+type Stats = {
+  total: number;
+  sold: number;
+  pending: number;
+  available: number;
+  percentage: string;
+};
+
+export default function AdminTicketsPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
 
-  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [tickets, setTickets] = useState<TicketSimple[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [q, setQ] = useState("");
 
-  const [ticketNumber, setTicketNumber] = useState('');
-  const [ticketInfo, setTicketInfo] = useState<any>(null);
-  const [releaseLoading, setReleaseLoading] = useState(false);
-
-  const TOTAL_TICKETS = parseInt(process.env.NEXT_PUBLIC_TOTAL_TICKETS || '500');
-
+  // Gate: si no hay sesión, login
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/login');
-      return;
-    }
-    if (status === 'authenticated') {
-      const userRole = (session?.user as any)?.role ?? (session?.user as any)?.rol;
-      if (userRole !== 'ADMIN') router.push('/dashboard');
-      else fetchStats();
-    }
+    if (status === "unauthenticated") router.push("/auth/login");
+  }, [status, router]);
+
+  // Gate: si hay sesión pero no es admin, fuera
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    const role = (session?.user as any)?.role ?? (session?.user as any)?.rol;
+    if (role && role !== "ADMIN") router.push("/");
   }, [status, session, router]);
 
-  const fetchStats = async () => {
-    try {
-      const res = await fetch('/api/admin/stats', { cache: 'no-store' });
-      const data = await res.json();
-      setStats(data);
-    } catch (e) {
-      console.error(e);
-      toast.error('Error cargando estadísticas');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Fetch seguro
+  useEffect(() => {
+    if (status !== "authenticated") return;
 
-  const searchTicket = async () => {
-    const num = parseInt(ticketNumber);
-    if (!num || num < 1 || num > TOTAL_TICKETS) {
-      toast.error(`Ingresa un número de boleto válido (1-${TOTAL_TICKETS})`);
-      return;
-    }
+    const load = async () => {
+      try {
+        setLoading(true);
 
-    try {
-      const res = await fetch('/api/tickets', { cache: 'no-store' });
-      const data = await res.json();
-      const ticket = data.tickets.find((t: any) => t.numero === num);
+        const res = await fetch("/api/admin/tickets", {
+          cache: "no-store",
+          headers: { "Content-Type": "application/json" },
+        });
 
-      if (ticket) setTicketInfo(ticket);
-      else {
-        toast.error('Boleto no encontrado');
-        setTicketInfo(null);
+        if (res.status === 401) {
+          setTickets([]);
+          setStats(null);
+          router.push("/auth/login");
+          return;
+        }
+
+        if (!res.ok) {
+          const txt = await res.text().catch(() => "");
+          throw new Error(`GET /api/admin/tickets failed: ${res.status} ${txt}`);
+        }
+
+        const json = await res.json();
+
+        setTickets(Array.isArray(json?.tickets) ? json.tickets : []);
+        setStats(json?.stats ?? null);
+      } catch (err) {
+        console.error(err);
+        setTickets([]);
+        setStats(null);
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      toast.error('Error al buscar boleto');
-      setTicketInfo(null);
-    }
-  };
+    };
 
-  const releaseTicket = async () => {
-    if (!ticketInfo) return;
+    load();
+  }, [status, router]);
 
-    setReleaseLoading(true);
-    try {
-      const res = await fetch('/api/admin/tickets/release', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ticketNumber: ticketInfo.numero }),
-      });
+  const filtered = useMemo(() => {
+    const query = q.trim();
+    if (!query) return tickets;
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'No se pudo liberar');
+    const num = Number(query);
+    const isNum = query !== "" && !Number.isNaN(num);
 
-      toast.success(data.message || 'Boleto liberado');
-      setTicketInfo(null);
-      setTicketNumber('');
-      fetchStats();
-    } catch (e: any) {
-      toast.error(e.message || 'Error al liberar boleto');
-    } finally {
-      setReleaseLoading(false);
-    }
-  };
-
-  if (status === 'loading' || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
-      </div>
-    );
-  }
-
-  if (!stats) return null;
-
-  const ticketStats = (stats.ticketStats || []).reduce((acc: any, stat: any) => {
-    acc[stat.estado] = stat._count;
-    return acc;
-  }, {});
-
-  const soldCount = (ticketStats.sold || 0) + (ticketStats.sold_physical || 0);
-  const pendingCount = ticketStats.pending_review || 0;
-  const availableCount = ticketStats.available || 0;
+    return (tickets ?? []).filter((t) => {
+      if (isNum && t.numero === num) return true;
+      return (
+        String(t.numero).includes(query) ||
+        (t.estado || "").toLowerCase().includes(query.toLowerCase())
+      );
+    });
+  }, [tickets, q]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-900 via-red-800 to-red-900">
-      <SnowEffect />
-      <Navbar />
+    <div style={{ padding: 24 }}>
+      <h1 style={{ fontSize: 22, fontWeight: 700 }}>Panel Admin - Tickets</h1>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Panel de Administración</h1>
-          <p className="text-black">Vista general del sistema</p>
+      {stats && (
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 12 }}>
+          <Card label="Total" value={stats.total} />
+          <Card label="Vendidos" value={stats.sold} />
+          <Card label="Pendientes" value={stats.pending} />
+          <Card label="Disponibles" value={stats.available} />
+          <Card label="% Vendido" value={`${stats.percentage}%`} />
         </div>
+      )}
 
-        {/* Navegación de Admin */}
-        <div className="flex flex-wrap gap-4 mb-8">
-          <button
-            onClick={() => router.push('/admin/transfers')}
-            className="px-6 py-3 bg-yellow-600 text-white rounded-lg font-bold hover:bg-yellow-700 transition-colors flex items-center gap-2"
-          >
-            ⏳ Validar Transferencias
-            {stats.pendingTransfers > 0 && (
-              <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs">
-                {stats.pendingTransfers}
-              </span>
-            )}
-          </button>
+      <div style={{ marginTop: 16 }}>
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Buscar por número o estado..."
+          style={{
+            width: 360,
+            padding: "10px 12px",
+            borderRadius: 8,
+            border: "1px solid #ccc",
+          }}
+        />
+      </div>
 
-          <button
-            onClick={() => router.push('/admin/physical-sales')}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors"
-          >
-            🏪 Ventas Físicas
-          </button>
-
-          <button
-            onClick={() => router.push('/admin/tickets')}
-            className="px-6 py-3 bg-blue-700 text-white rounded-lg font-bold hover:bg-blue-800 transition-colors flex items-center gap-2"
-          >
-            📋 Base completa de boletos
-          </button>
-        </div>
-
-        {/* Liberar Boletos */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h3 className="text-xl font-bold mb-2 text-gray-800">🔓 Liberar Boleto Reservado</h3>
-          <p className="text-gray-600 mb-4 text-sm">
-            Busca y libera boletos que estén reservados o pendientes de pago
-          </p>
-
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  min="1"
-                  max={TOTAL_TICKETS}
-                  value={ticketNumber}
-                  onChange={(e) => setTicketNumber(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && searchTicket()}
-                  placeholder={`Número de boleto (1-${TOTAL_TICKETS})`}
-                  className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-blue-700 font-medium placeholder:text-gray-400"
-                />
-                <button
-                  onClick={searchTicket}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
-                >
-                  🔍 Buscar
-                </button>
-              </div>
-            </div>
-
-            {ticketInfo && (
-              <div className="flex-1 flex items-center gap-4 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600">Boleto #{ticketInfo.numero}</p>
-                  <p className="font-bold text-lg">
-                    Estado:{' '}
-                    <span
-                      className={`
-                        ${ticketInfo.estado === 'available' ? 'text-green-600' : ''}
-                        ${ticketInfo.estado === 'reserved_pending_payment' ? 'text-gray-600' : ''}
-                        ${ticketInfo.estado === 'pending_review' ? 'text-yellow-600' : ''}
-                        ${
-                          ticketInfo.estado === 'sold' || ticketInfo.estado === 'sold_physical'
-                            ? 'text-red-600'
-                            : ''
-                        }
-                      `}
-                    >
-                      {ticketInfo.estado}
-                    </span>
-                  </p>
-                </div>
-
-                {(ticketInfo.estado === 'reserved_pending_payment' ||
-                  ticketInfo.estado === 'pending_review') && (
-                  <button
-                    onClick={releaseTicket}
-                    disabled={releaseLoading}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
-                  >
-                    {releaseLoading ? '⏳ Liberando...' : '🔓 Liberar Boleto'}
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Estadísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl shadow-lg p-6">
-            <p className="text-green-100 text-sm">Boletos Vendidos</p>
-            <p className="text-4xl font-bold mt-2">{soldCount}</p>
-            <p className="text-green-100 text-xs mt-1">
-              {((soldCount / TOTAL_TICKETS) * 100).toFixed(1)}% del total
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-xl shadow-lg p-6">
-            <p className="text-yellow-100 text-sm">Pendientes</p>
-            <p className="text-4xl font-bold mt-2">{pendingCount}</p>
-            <p className="text-yellow-100 text-xs mt-1">{stats.pendingTransfers} transferencias</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-6">
-            <p className="text-blue-100 text-sm">Disponibles</p>
-            <p className="text-4xl font-bold mt-2">{availableCount}</p>
-            <p className="text-blue-100 text-xs mt-1">
-              {((availableCount / TOTAL_TICKETS) * 100).toFixed(1)}% restante
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg p-6">
-            <p className="text-purple-100 text-sm">Ingresos Totales</p>
-            <p className="text-2xl font-bold mt-2">{formatCurrency(stats.revenue.total)}</p>
-            <p className="text-purple-100 text-xs mt-1">{stats.revenue.salesCount} ventas</p>
-          </div>
-        </div>
-
-        {/* Ventas Recientes */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800">Ventas Recientes</h2>
-
-          {stats.recentSales?.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">No hay ventas registradas aún</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b-2 border-gray-300 bg-gray-50">
-                    <th className="text-left py-3 px-4 font-bold text-gray-800">Código</th>
-                    <th className="text-left py-3 px-4 font-bold text-gray-800">Usuario</th>
-                    <th className="text-left py-3 px-4 font-bold text-gray-800">Boletos</th>
-                    <th className="text-left py-3 px-4 font-bold text-gray-800">Total</th>
-                    <th className="text-left py-3 px-4 font-bold text-gray-800">Método</th>
-                    <th className="text-left py-3 px-4 font-bold text-gray-800">Fecha</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentSales?.map((sale: any) => (
-                    <tr key={sale.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-mono text-sm font-bold text-blue-600">
-                        {sale.unique_code}
-                      </td>
-                      <td className="py-3 px-4 font-medium text-gray-800">{sale.user.nombre}</td>
-                      <td className="py-3 px-4">
-                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
-                          {sale.tickets.length} boletos
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 font-bold text-green-600">
-                        {formatCurrency(sale.total)}
-                      </td>
-                      <td className="py-3 px-4 capitalize font-medium text-gray-800">{sale.method}</td>
-                      <td className="py-3 px-4 text-sm font-medium text-gray-700">
-                        {formatDate(new Date(sale.updated_at))}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+      <div style={{ marginTop: 16 }}>
+        {loading ? (
+          <p>Cargando...</p>
+        ) : filtered.length === 0 ? (
+          <p>No hay resultados.</p>
+        ) : (
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <Th>Número</Th>
+                <Th>Estado</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((t) => (
+                <tr key={t.id}>
+                  <Td>{t.numero}</Td>
+                  <Td>{t.estado}</Td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
+}
+
+function Card({ label, value }: { label: string; value: any }) {
+  return (
+    <div style={{ border: "1px solid #ddd", borderRadius: 12, padding: 12, minWidth: 160 }}>
+      <div style={{ fontSize: 12, color: "#666" }}>{label}</div>
+      <div style={{ fontSize: 18, fontWeight: 700 }}>{String(value)}</div>
+    </div>
+  );
+}
+
+function Th({ children }: { children: any }) {
+  return (
+    <th style={{ textAlign: "left", padding: "10px 8px", borderBottom: "1px solid #ddd" }}>
+      {children}
+    </th>
+  );
+}
+
+function Td({ children }: { children: any }) {
+  return <td style={{ padding: "10px 8px", borderBottom: "1px solid #eee" }}>{children}</td>;
 }

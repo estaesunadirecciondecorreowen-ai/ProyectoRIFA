@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { cleanExpiredReservations } from "@/lib/utils";
 
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth"; // ajusta si tu authOptions está en otra ruta
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +12,14 @@ type SortKey = "numero" | "estado" | "updatedAt";
 
 export async function GET(req: Request) {
   try {
-    // 1) Admin only
+    // 1) Admin only (FIX: role)
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any)?.rol !== "ADMIN") {
+
+    const role =
+      (session?.user as any)?.role ?? // <- tu auth.ts guarda role
+      (session?.user as any)?.rol;    // compat opcional
+
+    if (!session || role !== "ADMIN") {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
@@ -23,7 +28,6 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
 
-    // Modo simple vs extendido
     const mode = (searchParams.get("mode") || "").trim(); // "grid"
     const q = (searchParams.get("q") || "").trim();
 
@@ -64,10 +68,10 @@ export async function GET(req: Request) {
       sold: soldCount,
       pending: pendingCount,
       available: availableCount,
-      percentage: ((soldCount / totalTickets) * 100).toFixed(2),
+      percentage: totalTickets > 0 ? ((soldCount / totalTickets) * 100).toFixed(2) : "0.00",
     };
 
-    // 4) Si NO piden tabla extendida, devolvemos la lista simple (tu endpoint original)
+    // 4) Si NO piden tabla extendida, devolvemos lista simple
     const wantsExtended =
       mode === "grid" ||
       q.length > 0 ||
@@ -94,26 +98,21 @@ export async function GET(req: Request) {
             OR: [
               ...(isNumber ? [{ numero: qAsNumber }] : []),
 
-              // Ticket estado
-              { estado: { equals: q as any } }, // si buscas "sold" etc.
+              { estado: { equals: q as any } },
               { nota: { contains: q, mode: "insensitive" } },
 
-              // Usuario asociado al ticket (cuando existe user_id)
               { user: { is: { nombre: { contains: q, mode: "insensitive" } } } },
               { user: { is: { email: { contains: q, mode: "insensitive" } } } },
               { user: { is: { telefono: { contains: q, mode: "insensitive" } } } },
 
-              // Compra asociada (purchase)
               { purchase: { is: { unique_code: { contains: q, mode: "insensitive" } } } },
               { purchase: { is: { method: { contains: q, mode: "insensitive" } } } },
               { purchase: { is: { status: { equals: q as any } } } },
 
-              // Campos "manuales" de compra
               { purchase: { is: { comprador_nombre: { contains: q, mode: "insensitive" } } } },
               { purchase: { is: { telefono_comprador: { contains: q, mode: "insensitive" } } } },
               { purchase: { is: { vendedor_nombre: { contains: q, mode: "insensitive" } } } },
 
-              // Transferencia
               { purchase: { is: { transfer: { is: { folio: { contains: q, mode: "insensitive" } } } } } },
             ],
           };
@@ -189,7 +188,6 @@ export async function GET(req: Request) {
 
     // Aplanado para UI
     const rows = tickets.map((t: any) => {
-      // Preferimos datos “de compra” si existen (porque ahí guardas comprador/vendedor)
       const buyerName =
         t.purchase?.comprador_nombre ||
         t.purchase?.user?.nombre ||
