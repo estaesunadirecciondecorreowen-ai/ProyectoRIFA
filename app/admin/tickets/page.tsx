@@ -32,7 +32,6 @@ function safeToString(v: any): string | null {
 }
 
 function safeDateISO(v: any): string | null {
-  // Acepta Date, string ISO, timestamp, etc. Si no es válido, regresa null
   if (!v) return null;
   const d = new Date(v);
   if (Number.isNaN(d.getTime())) return null;
@@ -40,81 +39,64 @@ function safeDateISO(v: any): string | null {
 }
 
 function normalizeRow(raw: any): Row {
-  // Soporta múltiples nombres provenientes de tu route actual
-  // - comprador o comprador_nombre
-  // - vendedor o vendedor_nombre
-  // - folioTransferencia o folio
-  // - purchaseCode o unique_code
-  // - updatedAt o updated_at
   const id = safeToString(raw?.id) ?? `${raw?.numero ?? Math.random()}`;
-
   const numero = Number(raw?.numero ?? 0);
-  const estado = safeToString(raw?.estado) ?? '-';
-
-  const comprador_nombre =
-    safeToString(raw?.comprador_nombre) ??
-    safeToString(raw?.comprador) ??
-    safeToString(raw?.buyerName) ??
-    null;
-
-  const correo = safeToString(raw?.correo) ?? safeToString(raw?.buyerEmail) ?? null;
-
-  const telefono =
-    safeToString(raw?.telefono) ??
-    safeToString(raw?.buyerPhone) ??
-    null;
-
-  const vendedor_nombre =
-    safeToString(raw?.vendedor_nombre) ??
-    safeToString(raw?.vendedor) ??
-    null;
-
-  const metodo =
-    safeToString(raw?.metodo) ??
-    safeToString(raw?.method) ??
-    null;
-
-  const folio =
-    safeToString(raw?.folio) ??
-    safeToString(raw?.folioTransferencia) ??
-    null;
-
-  const unique_code =
-    safeToString(raw?.unique_code) ??
-    safeToString(raw?.purchaseCode) ??
-    safeToString(raw?.purchase_code) ??
-    null;
-
-  const updated_at =
-    safeDateISO(raw?.updated_at) ??
-    safeDateISO(raw?.updatedAt) ??
-    safeDateISO(raw?.updated_at_str) ??
-    null;
 
   return {
     id,
     numero: Number.isFinite(numero) ? numero : 0,
-    estado,
-    comprador_nombre,
-    correo,
-    telefono,
-    vendedor_nombre,
-    metodo,
-    folio,
-    unique_code,
-    updated_at,
+    estado: safeToString(raw?.estado) ?? '-',
+
+    comprador_nombre:
+      safeToString(raw?.comprador_nombre) ??
+      safeToString(raw?.comprador) ??
+      safeToString(raw?.buyerName) ??
+      null,
+
+    correo: safeToString(raw?.correo) ?? safeToString(raw?.buyerEmail) ?? null,
+
+    telefono: safeToString(raw?.telefono) ?? safeToString(raw?.buyerPhone) ?? null,
+
+    vendedor_nombre:
+      safeToString(raw?.vendedor_nombre) ??
+      safeToString(raw?.vendedor) ??
+      null,
+
+    metodo: safeToString(raw?.metodo) ?? safeToString(raw?.method) ?? null,
+
+    folio:
+      safeToString(raw?.folio) ??
+      safeToString(raw?.folioTransferencia) ??
+      null,
+
+    unique_code:
+      safeToString(raw?.unique_code) ??
+      safeToString(raw?.purchaseCode) ??
+      safeToString(raw?.purchase_code) ??
+      null,
+
+    updated_at:
+      safeDateISO(raw?.updated_at) ??
+      safeDateISO(raw?.updatedAt) ??
+      null,
   };
+}
+
+function includesCI(haystack: string, needle: string) {
+  return haystack.toLowerCase().includes(needle.toLowerCase());
 }
 
 export default function AdminTicketsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const userRole = (session?.user as any)?.role ?? (session?.user as any)?.rol;
 
   const [q, setQ] = useState('');
-  const [rows, setRows] = useState<Row[]>([]);
+  const [allRows, setAllRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const userRole = (session?.user as any)?.role ?? (session?.user as any)?.rol;
+  // texto aplicado (para que el botón Buscar sea real y no filtre “en vivo” si no quieres)
+  const [appliedQ, setAppliedQ] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -126,19 +108,17 @@ export default function AdminTicketsPage() {
         router.push('/dashboard');
         return;
       }
-      void fetchRows('');
+      void fetchRowsOnce();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
-  const fetchRows = async (query: string) => {
+  const fetchRowsOnce = async () => {
     setLoading(true);
-
     try {
-      // 👇 Forzamos modo grid para que, si tu route lo soporta, entregue rows extendidas.
-      // Si tu route ignora mode, NO pasa nada: igual normalizamos.
-      const url = `/api/admin/tickets?mode=grid&pageSize=500&q=${encodeURIComponent(query)}`;
-      const res = await fetch(url, { cache: 'no-store' });
+      // Importante: NO dependemos de q en server.
+      // Pedimos todo una vez (modo grid por si existe).
+      const res = await fetch(`/api/admin/tickets?mode=grid&pageSize=500`, { cache: 'no-store' });
       const data = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
@@ -147,25 +127,56 @@ export default function AdminTicketsPage() {
       }
       if (!res.ok) throw new Error(data?.error || 'Error cargando tickets');
 
-      // ✅ Soporta: { rows: [...] } o { tickets: [...] }
       const rawList = Array.isArray(data?.rows)
         ? data.rows
         : Array.isArray(data?.tickets)
         ? data.tickets
         : [];
 
-      const normalized = rawList.map(normalizeRow);
-      setRows(normalized);
+      setAllRows(rawList.map(normalizeRow));
     } catch (e: any) {
       console.error(e);
       toast.error(e.message || 'Error cargando tickets');
-      setRows([]);
+      setAllRows([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const countLabel = useMemo(() => `${rows.length} registro(s)`, [rows.length]);
+  const filteredRows = useMemo(() => {
+    const query = appliedQ.trim();
+    if (!query) return allRows;
+
+    // Si el usuario mete varias palabras, filtramos por “todas”
+    const parts = query.split(/\s+/).filter(Boolean);
+
+    return allRows.filter((r) => {
+      const bag = [
+        r.numero ? String(r.numero) : '',
+        r.estado ?? '',
+        r.comprador_nombre ?? '',
+        r.correo ?? '',
+        r.telefono ?? '',
+        r.folio ?? '',
+        r.metodo ?? '',
+        r.vendedor_nombre ?? '',
+        r.unique_code ?? '',
+      ].join(' | ');
+
+      return parts.every((p) => includesCI(bag, p));
+    });
+  }, [allRows, appliedQ]);
+
+  const countLabel = useMemo(() => `${filteredRows.length} registro(s)`, [filteredRows.length]);
+
+  const handleBuscar = () => {
+    setAppliedQ(q);
+  };
+
+  const handleLimpiar = () => {
+    setQ('');
+    setAppliedQ('');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-900 via-red-800 to-red-900">
@@ -203,24 +214,31 @@ export default function AdminTicketsPage() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && fetchRows(q)}
+              onKeyDown={(e) => e.key === 'Enter' && handleBuscar()}
               placeholder="Ej: 123 | Juan | correo@gmail.com | 55... | FOLIO..."
               className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg text-blue-700 font-medium placeholder:text-gray-400"
             />
             <button
-              onClick={() => fetchRows(q)}
+              onClick={handleBuscar}
               className="px-6 py-2 bg-blue-700 text-white rounded-lg font-bold hover:bg-blue-800 transition-colors"
             >
               🔍 Buscar
             </button>
             <button
-              onClick={() => {
-                setQ('');
-                fetchRows('');
-              }}
+              onClick={handleLimpiar}
               className="px-6 py-2 bg-gray-200 text-gray-900 rounded-lg font-bold hover:bg-gray-300 transition-colors"
             >
               Limpiar
+            </button>
+          </div>
+
+          {/* Opcional: botón recargar si cambian ventas en vivo */}
+          <div className="mt-3 flex justify-end">
+            <button
+              onClick={fetchRowsOnce}
+              className="text-sm font-bold text-blue-700 hover:text-blue-900"
+            >
+              Recargar datos
             </button>
           </div>
         </div>
@@ -228,7 +246,7 @@ export default function AdminTicketsPage() {
         <div className="bg-white rounded-xl shadow-lg p-4">
           {loading ? (
             <div className="py-16 text-center text-gray-700">Cargando…</div>
-          ) : rows.length === 0 ? (
+          ) : filteredRows.length === 0 ? (
             <div className="py-16 text-center text-gray-600">Sin resultados</div>
           ) : (
             <div className="overflow-x-auto">
@@ -248,7 +266,7 @@ export default function AdminTicketsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((r) => (
+                  {filteredRows.map((r) => (
                     <tr key={r.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4 font-bold text-blue-700">#{r.numero}</td>
                       <td className="py-3 px-4 text-gray-800">{r.estado}</td>
